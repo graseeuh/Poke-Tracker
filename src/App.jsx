@@ -28,8 +28,10 @@ function App() {
       if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true)
       setSession(newSession)
       setSelectedSetId(null)
-      setFindingSets(false)
       setViewingArtist(null)
+      // Land on search after a fresh sign-in; otherwise leave the current view alone.
+      if (event === 'SIGNED_IN') setFindingSets(true)
+      else if (!newSession) setFindingSets(false)
     })
 
     return () => listener.subscription.unsubscribe()

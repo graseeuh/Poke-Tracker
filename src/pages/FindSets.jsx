@@ -72,9 +72,15 @@ export default function FindSets({ session, onBack }) {
   return (
     <div className="find-sets">
       <header className="find-sets-header">
-        <button onClick={onBack}>&larr; Back to your sets</button>
-        <h1>Find 2026 Sets</h1>
-        <p className="status-line">Favorite a set to add it to your dashboard.</p>
+        <div className="find-sets-title-row">
+          <div>
+            <h1>Find 2026 Sets</h1>
+            <p className="status-line">Favorite a set to add it to your tracked sets.</p>
+          </div>
+          <button className="tracked-sets-cta" onClick={onBack}>
+            My Tracked Sets ({favoriteIds.size}) &rarr;
+          </button>
+        </div>
       </header>
 
       <input
