@@ -261,36 +261,7 @@ h3 {
   margin-bottom: 1rem;
 }
 
-.find-sets-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.find-sets-header h1 {
-  margin: 0 0 0.3rem;
-  font-size: 1.8rem;
-}
-
-.tracked-sets-cta {
-  padding: 0.65rem 1.1rem;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: var(--red);
-  color: white;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.tracked-sets-cta:hover {
-  background: var(--red-dark);
-}
-
-.back-nav-button {
+.find-sets-header > button {
   padding: 0.5rem 0.85rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-mid);
@@ -301,8 +272,30 @@ h3 {
   margin-bottom: 0.75rem;
 }
 
-.back-nav-button:hover {
+.find-sets-header > button:hover {
   background: var(--surface2);
+}
+
+.find-sets-header h1 {
+  margin: 0 0 0.3rem;
+  font-size: 1.8rem;
+}
+
+.tracked-sets-cta {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--red);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.tracked-sets-cta:hover {
+  background: var(--red-dark);
 }
 
 .status-line {

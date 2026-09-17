@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { fetch2026Sets } from '../lib/pokemonApi'
 import { ensureSetSeeded } from '../lib/seedSet'
 
-export default function FindSets({ session, onBack }) {
+export default function FindSets({ session, onGoToTrackedSets }) {
   const [sets, setSets] = useState([])
   const [favoriteIds, setFavoriteIds] = useState(new Set())
   const [pendingId, setPendingId] = useState(null)
@@ -72,15 +72,11 @@ export default function FindSets({ session, onBack }) {
   return (
     <div className="find-sets">
       <header className="find-sets-header">
-        <div className="find-sets-title-row">
-          <div>
-            <h1>Find 2026 Sets</h1>
-            <p className="status-line">Favorite a set to add it to your tracked sets.</p>
-          </div>
-          <button className="tracked-sets-cta" onClick={onBack}>
-            My Tracked Sets ({favoriteIds.size}) &rarr;
-          </button>
-        </div>
+        <h1>Find 2026 Sets</h1>
+        <p className="status-line">Favorite a set to start tracking it.</p>
+        <button className="tracked-sets-cta" onClick={onGoToTrackedSets}>
+          My Tracked Sets{favoriteIds.size > 0 ? ` (${favoriteIds.size})` : ''} &rarr;
+        </button>
       </header>
 
       <input

@@ -18,7 +18,7 @@ export default function ArtistWorks({ artist, onBack }) {
   return (
     <div className="find-sets">
       <header className="find-sets-header">
-        <button className="back-nav-button" onClick={onBack}>&larr; Back to card</button>
+        <button onClick={onBack}>&larr; Back to card</button>
         <h1>Cards illustrated by {artist}</h1>
         <p className="status-line">Pulled live from the Pokemon TCG API, across all sets.</p>
       </header>

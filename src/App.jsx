@@ -15,7 +15,7 @@ function App() {
   const [selectedSetId, setSelectedSetId] = useState(null)
   const [passwordRecovery, setPasswordRecovery] = useState(false)
   const [demoMode, setDemoMode] = useState(false)
-  const [findingSets, setFindingSets] = useState(false)
+  const [view, setView] = useState('search') // 'search' | 'dashboard', only meaningful when logged in
   const [viewingArtist, setViewingArtist] = useState(null)
 
   useEffect(() => {
@@ -28,10 +28,8 @@ function App() {
       if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true)
       setSession(newSession)
       setSelectedSetId(null)
+      setView('search')
       setViewingArtist(null)
-      // Land on search after a fresh sign-in; otherwise leave the current view alone.
-      if (event === 'SIGNED_IN') setFindingSets(true)
-      else if (!newSession) setFindingSets(false)
     })
 
     return () => listener.subscription.unsubscribe()
@@ -57,8 +55,8 @@ function App() {
       )
     }
 
-    if (findingSets) {
-      return <FindSets session={session} onBack={() => setFindingSets(false)} />
+    if (session && view === 'search') {
+      return <FindSets session={session} onGoToTrackedSets={() => setView('dashboard')} />
     }
 
     return (
@@ -66,7 +64,7 @@ function App() {
         session={session}
         onSelectSet={setSelectedSetId}
         onExitDemo={demoMode ? () => setDemoMode(false) : null}
-        onFindSets={() => setFindingSets(true)}
+        onFindSets={() => setView('search')}
       />
     )
   }
