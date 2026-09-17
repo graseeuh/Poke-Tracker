@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { fetchSetMeta, fetchSetCards } from '../lib/pokemonApi'
+import { toCardRow } from '../lib/cardMapper'
+import { ensureSetSeeded } from '../lib/seedSet'
 import CardModal from '../components/CardModal'
 
 const RARITY_ORDER = [
@@ -29,12 +32,15 @@ function sectionFor(card) {
   return SECTION_ORDER.includes(card.rarity) ? card.rarity : MAIN_SET_LABEL
 }
 
-export default function SetDetail({ session, setId, onBack, onViewArtist }) {
+export default function SetDetail({ session, setId, onBack, onViewArtist, onRequireLogin }) {
   const [set, setSet] = useState(null)
   const [cards, setCards] = useState([])
   const [ownedMap, setOwnedMap] = useState({}) // { [cardId]: boolean }
+  const [seeded, setSeeded] = useState(true) // false = viewing live API data, not yet tracked
+  const [apiSetMeta, setApiSetMeta] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [loadError, setLoadError] = useState('')
+  const [actionError, setActionError] = useState('')
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('All')
@@ -48,27 +54,44 @@ export default function SetDetail({ session, setId, onBack, onViewArtist }) {
 
   async function loadSetDetail() {
     setLoading(true)
-    setError('')
+    setLoadError('')
+    setActionError('')
 
-    const { data: setData, error: setError_ } = await supabase
-      .from('sets')
-      .select('*')
-      .eq('id', setId)
-      .single()
+    const { data: setRow } = await supabase.from('sets').select('*').eq('id', setId).maybeSingle()
 
-    if (setError_) {
-      setError(setError_.message)
-      setLoading(false)
-      return
+    if (setRow) {
+      setSet(setRow)
+      setSeeded(true)
+      setApiSetMeta(null)
+
+      const { data: cardsData } = await supabase
+        .from('cards')
+        .select('*')
+        .eq('set_id', setId)
+        .order('number', { ascending: true })
+      setCards(cardsData || [])
+    } else {
+      // Nobody has tracked this set yet — show it read-only straight from
+      // the public API instead of erroring out.
+      try {
+        const [meta, apiCards] = await Promise.all([fetchSetMeta(setId), fetchSetCards(setId)])
+        setApiSetMeta(meta)
+        setSet({ id: meta.id, name: meta.name, series: meta.series, total: meta.total })
+        setSeeded(false)
+        setCards(
+          [...apiCards]
+            .sort((a, b) => Number(a.number) - Number(b.number))
+            .map((c) => toCardRow(c, setId))
+        )
+      } catch (err) {
+        setLoadError(
+          'Could not load this set from the Pokemon TCG API — it may be temporarily down. ' +
+            `(${err.message})`
+        )
+        setLoading(false)
+        return
+      }
     }
-    setSet(setData)
-
-    const { data: cardsData } = await supabase
-      .from('cards')
-      .select('*')
-      .eq('set_id', setId)
-      .order('number', { ascending: true })
-    setCards(cardsData || [])
 
     if (session) {
       const { data: ownedData } = await supabase
@@ -84,21 +107,34 @@ export default function SetDetail({ session, setId, onBack, onViewArtist }) {
   }
 
   async function toggleOwned(cardId) {
+    if (!session) {
+      onRequireLogin()
+      return
+    }
+
     const nextOwned = !ownedMap[cardId]
     setOwnedMap((prev) => ({ ...prev, [cardId]: nextOwned }))
 
-    if (!session) return // demo mode: local only, nothing to save
+    try {
+      if (!seeded) {
+        await ensureSetSeeded(apiSetMeta)
+        const { error: favError } = await supabase
+          .from('favorite_sets')
+          .upsert({ user_id: session.user.id, set_id: setId })
+        if (favError) throw favError
+        setSeeded(true)
+      }
 
-    const { error } = await supabase.from('user_cards').upsert({
-      user_id: session.user.id,
-      card_id: cardId,
-      owned: nextOwned,
-      updated_at: new Date().toISOString(),
-    })
-
-    if (error) {
+      const { error } = await supabase.from('user_cards').upsert({
+        user_id: session.user.id,
+        card_id: cardId,
+        owned: nextOwned,
+        updated_at: new Date().toISOString(),
+      })
+      if (error) throw error
+    } catch (err) {
       setOwnedMap((prev) => ({ ...prev, [cardId]: !nextOwned }))
-      setError(error.message)
+      setActionError(err.message)
     }
   }
 
@@ -151,7 +187,15 @@ export default function SetDetail({ session, setId, onBack, onViewArtist }) {
   }, [filteredCards])
 
   if (loading) return <p className="status">Loading set...</p>
-  if (error) return <p className="error">{error}</p>
+
+  if (loadError) {
+    return (
+      <div className="set-detail">
+        <button onClick={onBack}>&larr; Back to sets</button>
+        <p className="error">{loadError}</p>
+      </div>
+    )
+  }
 
   const ownedCards = cards.filter((c) => ownedMap[c.id])
   const ownedCount = ownedCards.length
@@ -161,6 +205,8 @@ export default function SetDetail({ session, setId, onBack, onViewArtist }) {
 
   return (
     <div className="set-detail">
+      {actionError && <p className="error action-error">{actionError}</p>}
+
       <header className="set-detail-header">
         <button onClick={onBack}>&larr; Back to sets</button>
         <h1>{set.name}</h1>
@@ -170,7 +216,8 @@ export default function SetDetail({ session, setId, onBack, onViewArtist }) {
           </div>
           <p className="progress-label">
             {ownedCount} / {cards.length} owned ({ownedPct}%)
-            {!session && ' — demo mode, not saved'}
+            {!session && ' — log in to track your progress'}
+            {session && !seeded && ' — mark a card to start tracking this set'}
           </p>
           {ownedCount > 0 && (
             <p className="collection-value">

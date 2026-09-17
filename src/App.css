@@ -56,6 +56,14 @@ h3 {
   color: var(--red-dark);
 }
 
+.action-error {
+  padding: 0.6rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(200, 52, 43, 0.08);
+  border: 1px solid rgba(200, 52, 43, 0.25);
+}
+
 .info {
   color: #2d7a3e;
 }
@@ -93,6 +101,32 @@ h3 {
 
 .site-wordmark span {
   color: var(--red);
+}
+
+.site-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.site-header-nav .user-email {
+  margin-right: 0.25rem;
+}
+
+.site-header-nav button {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-mid);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.site-header-nav button:hover {
+  background: var(--surface2);
 }
 
 .auth-page {
@@ -310,14 +344,6 @@ h3 {
   margin: 1rem 0 1.5rem;
 }
 
-.find-set-card {
-  cursor: default;
-}
-
-.find-set-card:hover {
-  transform: none;
-}
-
 .favorite-toggle {
   margin-top: 0.5rem;
   padding: 0.45rem 0.75rem;
@@ -348,8 +374,14 @@ h3 {
 
 .set-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
+}
+
+@media (max-width: 560px) {
+  .set-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .set-card {

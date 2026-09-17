@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { fetch2026Sets } from '../lib/pokemonApi'
 import { ensureSetSeeded } from '../lib/seedSet'
 
-export default function FindSets({ session, onGoToTrackedSets }) {
+export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, onViewSet }) {
   const [sets, setSets] = useState([])
   const [favoriteIds, setFavoriteIds] = useState(new Set())
   const [pendingId, setPendingId] = useState(null)
@@ -13,7 +13,7 @@ export default function FindSets({ session, onGoToTrackedSets }) {
 
   useEffect(() => {
     loadSets()
-  }, [])
+  }, [session])
 
   async function loadSets() {
     setLoading(true)
@@ -21,7 +21,9 @@ export default function FindSets({ session, onGoToTrackedSets }) {
     try {
       const [apiSets, favResp] = await Promise.all([
         fetch2026Sets(),
-        supabase.from('favorite_sets').select('set_id').eq('user_id', session.user.id),
+        session
+          ? supabase.from('favorite_sets').select('set_id').eq('user_id', session.user.id)
+          : Promise.resolve({ data: [] }),
       ])
       setSets(apiSets)
       setFavoriteIds(new Set((favResp.data || []).map((r) => r.set_id)))
@@ -32,6 +34,11 @@ export default function FindSets({ session, onGoToTrackedSets }) {
   }
 
   async function toggleFavorite(apiSet) {
+    if (!session) {
+      onRequireLogin()
+      return
+    }
+
     const isFavorite = favoriteIds.has(apiSet.id)
     setPendingId(apiSet.id)
     setError('')
@@ -73,10 +80,16 @@ export default function FindSets({ session, onGoToTrackedSets }) {
     <div className="find-sets">
       <header className="find-sets-header">
         <h1>Find 2026 Sets</h1>
-        <p className="status-line">Favorite a set to start tracking it.</p>
-        <button className="tracked-sets-cta" onClick={onGoToTrackedSets}>
-          My Tracked Sets{favoriteIds.size > 0 ? ` (${favoriteIds.size})` : ''} &rarr;
-        </button>
+        <p className="status-line">
+          {session
+            ? 'Favorite a set to start tracking it.'
+            : 'Browse freely — log in to favorite a set and track your progress.'}
+        </p>
+        {session && (
+          <button className="tracked-sets-cta" onClick={onGoToTrackedSets}>
+            My Tracked Sets{favoriteIds.size > 0 ? ` (${favoriteIds.size})` : ''} &rarr;
+          </button>
+        )}
       </header>
 
       <input
@@ -99,16 +112,29 @@ export default function FindSets({ session, onGoToTrackedSets }) {
           const isFavorite = favoriteIds.has(s.id)
           const isPending = pendingId === s.id
           return (
-            <div key={s.id} className="set-card find-set-card">
+            <div
+              key={s.id}
+              className="set-card find-set-card"
+              onClick={() => onViewSet(s.id)}
+            >
               <h3>{s.name}</h3>
               <p className="set-series">{s.series}</p>
               <p className="progress-label">{s.total} cards &middot; {s.releaseDate}</p>
               <button
                 className={`favorite-toggle ${isFavorite ? 'favorited' : ''}`}
                 disabled={isPending}
-                onClick={() => toggleFavorite(s)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  toggleFavorite(s)
+                }}
               >
-                {isPending ? 'Working...' : isFavorite ? '★ Favorited' : '☆ Favorite'}
+                {isPending
+                  ? 'Working...'
+                  : isFavorite
+                    ? '★ Favorited'
+                    : session
+                      ? '☆ Favorite'
+                      : 'Log in to favorite'}
               </button>
             </div>
           )

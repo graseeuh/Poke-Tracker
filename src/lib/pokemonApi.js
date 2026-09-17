@@ -17,6 +17,11 @@ export async function fetch2026Sets() {
   return resp.data.filter((s) => s.releaseDate.startsWith('2026'))
 }
 
+export async function fetchSetMeta(setId) {
+  const resp = await fetchWithRetry(`${API_BASE}/sets/${setId}`)
+  return resp.data
+}
+
 export async function fetchSetCards(setId) {
   const resp = await fetchWithRetry(`${API_BASE}/cards?q=set.id:${setId}&pageSize=250`)
   return resp.data

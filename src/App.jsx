@@ -14,8 +14,7 @@ function App() {
   const [loadingSession, setLoadingSession] = useState(true)
   const [selectedSetId, setSelectedSetId] = useState(null)
   const [passwordRecovery, setPasswordRecovery] = useState(false)
-  const [demoMode, setDemoMode] = useState(false)
-  const [view, setView] = useState('search') // 'search' | 'dashboard', only meaningful when logged in
+  const [view, setView] = useState('search') // 'search' | 'dashboard' | 'login'
   const [viewingArtist, setViewingArtist] = useState(null)
 
   useEffect(() => {
@@ -28,17 +27,22 @@ function App() {
       if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true)
       setSession(newSession)
       setSelectedSetId(null)
-      setView('search')
       setViewingArtist(null)
+      setView(newSession ? 'dashboard' : 'search')
     })
 
     return () => listener.subscription.unsubscribe()
   }, [])
 
+  function requireLogin() {
+    setSelectedSetId(null)
+    setViewingArtist(null)
+    setView('login')
+  }
+
   function renderPage() {
     if (loadingSession) return <p className="status">Loading...</p>
     if (passwordRecovery) return <ResetPassword onDone={() => setPasswordRecovery(false)} />
-    if (!session && !demoMode) return <Login onDemo={() => setDemoMode(true)} />
 
     if (viewingArtist) {
       return <ArtistWorks artist={viewingArtist} onBack={() => setViewingArtist(null)} />
@@ -51,27 +55,43 @@ function App() {
           setId={selectedSetId}
           onBack={() => setSelectedSetId(null)}
           onViewArtist={setViewingArtist}
+          onRequireLogin={requireLogin}
         />
       )
     }
 
-    if (session && view === 'search') {
-      return <FindSets session={session} onGoToTrackedSets={() => setView('dashboard')} />
+    if (view === 'login') {
+      return <Login onCancel={() => setView('search')} />
+    }
+
+    if (session && view === 'dashboard') {
+      return (
+        <Dashboard
+          session={session}
+          onSelectSet={setSelectedSetId}
+          onFindSets={() => setView('search')}
+        />
+      )
     }
 
     return (
-      <Dashboard
+      <FindSets
         session={session}
-        onSelectSet={setSelectedSetId}
-        onExitDemo={demoMode ? () => setDemoMode(false) : null}
-        onFindSets={() => setView('search')}
+        onGoToTrackedSets={() => setView(session ? 'dashboard' : 'login')}
+        onRequireLogin={requireLogin}
+        onViewSet={setSelectedSetId}
       />
     )
   }
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader
+        session={session}
+        onLogin={() => setView('login')}
+        onLogout={() => supabase.auth.signOut()}
+        onMyTrackedSets={() => setView('dashboard')}
+      />
       {renderPage()}
     </>
   )

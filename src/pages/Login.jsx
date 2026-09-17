@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
-export default function Login({ onDemo }) {
+export default function Login({ onCancel }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mode, setMode] = useState('login') // 'login' | 'register' | 'forgot'
@@ -86,9 +86,9 @@ export default function Login({ onDemo }) {
           {mode === 'login' ? 'Need an account? Register' : 'Already have an account? Log in'}
         </button>
 
-        {onDemo && (
-          <button type="button" className="link-button" onClick={onDemo}>
-            Continue as guest (demo mode, progress won't be saved)
+        {onCancel && (
+          <button type="button" className="link-button" onClick={onCancel}>
+            Continue browsing without an account
           </button>
         )}
       </form>

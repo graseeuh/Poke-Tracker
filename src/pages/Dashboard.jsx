@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
-export default function Dashboard({ session, onSelectSet, onExitDemo, onFindSets }) {
+export default function Dashboard({ session, onSelectSet, onFindSets }) {
   const [sets, setSets] = useState([])
   const [progress, setProgress] = useState({}) // { [setId]: { owned, total } }
   const [loading, setLoading] = useState(true)
@@ -15,65 +15,45 @@ export default function Dashboard({ session, onSelectSet, onExitDemo, onFindSets
     setLoading(true)
     setError('')
 
-    let setsData
-    if (session) {
-      const { data: favData, error: favError } = await supabase
-        .from('favorite_sets')
-        .select('set_id')
-        .eq('user_id', session.user.id)
+    const { data: favData, error: favError } = await supabase
+      .from('favorite_sets')
+      .select('set_id')
+      .eq('user_id', session.user.id)
 
-      if (favError) {
-        setError(favError.message)
-        setLoading(false)
-        return
-      }
+    if (favError) {
+      setError(favError.message)
+      setLoading(false)
+      return
+    }
 
-      const favoriteIds = (favData || []).map((r) => r.set_id)
-      if (favoriteIds.length === 0) {
-        setSets([])
-        setProgress({})
-        setLoading(false)
-        return
-      }
+    const favoriteIds = (favData || []).map((r) => r.set_id)
+    if (favoriteIds.length === 0) {
+      setSets([])
+      setProgress({})
+      setLoading(false)
+      return
+    }
 
-      const { data, error: setsError } = await supabase
-        .from('sets')
-        .select('*')
-        .in('id', favoriteIds)
-        .order('release_date', { ascending: true })
+    const { data: setsData, error: setsError } = await supabase
+      .from('sets')
+      .select('*')
+      .in('id', favoriteIds)
+      .order('release_date', { ascending: true })
 
-      if (setsError) {
-        setError(setsError.message)
-        setLoading(false)
-        return
-      }
-      setsData = data
-    } else {
-      const { data, error: setsError } = await supabase
-        .from('sets')
-        .select('*')
-        .order('release_date', { ascending: true })
-
-      if (setsError) {
-        setError(setsError.message)
-        setLoading(false)
-        return
-      }
-      setsData = data
+    if (setsError) {
+      setError(setsError.message)
+      setLoading(false)
+      return
     }
 
     setSets(setsData || [])
 
     const { data: cardsData } = await supabase.from('cards').select('id, set_id, market_price')
-    const ownedData = session
-      ? (
-          await supabase
-            .from('user_cards')
-            .select('card_id')
-            .eq('user_id', session.user.id)
-            .eq('owned', true)
-        ).data
-      : []
+    const { data: ownedData } = await supabase
+      .from('user_cards')
+      .select('card_id')
+      .eq('user_id', session.user.id)
+      .eq('owned', true)
 
     const ownedSet = new Set((ownedData || []).map((r) => r.card_id))
     const totals = {}
@@ -91,43 +71,20 @@ export default function Dashboard({ session, onSelectSet, onExitDemo, onFindSets
     setLoading(false)
   }
 
-  async function handleSignOut() {
-    await supabase.auth.signOut()
-  }
-
   if (loading) return <p className="status">Loading sets...</p>
   if (error) return <p className="error">{error}</p>
 
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <h1>Your 2026 Sets</h1>
-        <div>
-          {session ? (
-            <>
-              <span className="user-email">{session.user.email}</span>
-              <button onClick={onFindSets}>Find sets</button>
-              <button onClick={handleSignOut}>Log out</button>
-            </>
-          ) : (
-            <>
-              <span className="user-email">Guest (demo mode &mdash; progress won't be saved)</span>
-              <button onClick={onExitDemo}>Log in / Register</button>
-            </>
-          )}
-        </div>
+        <h1>Your Tracked Sets</h1>
+        <button onClick={onFindSets}>Browse all 2026 sets</button>
       </header>
 
-      {sets.length === 0 && session && (
+      {sets.length === 0 && (
         <p className="status">
-          You haven't favorited any sets yet. Click <strong>Find sets</strong> above to browse
-          2026 sets and add some.
-        </p>
-      )}
-
-      {sets.length === 0 && !session && (
-        <p className="status">
-          No sets loaded yet. Log in and use Find sets to favorite a 2026 set.
+          You haven't favorited any sets yet. Click <strong>Browse all 2026 sets</strong> above
+          to find one to track.
         </p>
       )}
 
