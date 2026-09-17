@@ -2,19 +2,25 @@
 
 const API_BASE = 'https://api.pokemontcg.io/v2'
 
-async function fetchWithRetry(url, attempts = 3) {
+async function fetchWithRetry(url, attempts = 5) {
   for (let i = 0; i < attempts; i++) {
     const res = await fetch(url)
     if (res.ok) return res.json()
     if (i === attempts - 1) throw new Error(`Request failed (${res.status}): ${url}`)
-    await new Promise((r) => setTimeout(r, 500 * 2 ** i))
+    await new Promise((r) => setTimeout(r, 1000 * 2 ** i))
   }
 }
 
+// Cached in memory so re-mounting the set list (e.g. navigating back from a
+// set) doesn't need a fresh round-trip to the flaky public API every time.
+let cached2026Sets = null
+
 // Sets released in 2026 only, so the tracker stays scoped to current-year master sets.
 export async function fetch2026Sets() {
+  if (cached2026Sets) return cached2026Sets
   const resp = await fetchWithRetry(`${API_BASE}/sets?orderBy=releaseDate`)
-  return resp.data.filter((s) => s.releaseDate.startsWith('2026'))
+  cached2026Sets = resp.data.filter((s) => s.releaseDate.startsWith('2026'))
+  return cached2026Sets
 }
 
 export async function fetchSetMeta(setId) {

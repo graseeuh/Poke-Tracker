@@ -103,7 +103,7 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
       {error && <p className="error">{error}</p>}
       {loading && <p className="status">Loading 2026 sets...</p>}
 
-      {!loading && filteredSets.length === 0 && (
+      {!loading && !error && filteredSets.length === 0 && (
         <p className="status">No 2026 sets match your search.</p>
       )}
 
