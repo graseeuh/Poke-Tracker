@@ -3,12 +3,20 @@ import { supabase } from './lib/supabaseClient'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import SetDetail from './pages/SetDetail'
+import ResetPassword from './pages/ResetPassword'
+import FindSets from './pages/FindSets'
+import ArtistWorks from './pages/ArtistWorks'
+import SiteHeader from './components/SiteHeader'
 import './App.css'
 
 function App() {
   const [session, setSession] = useState(null)
   const [loadingSession, setLoadingSession] = useState(true)
   const [selectedSetId, setSelectedSetId] = useState(null)
+  const [passwordRecovery, setPasswordRecovery] = useState(false)
+  const [demoMode, setDemoMode] = useState(false)
+  const [findingSets, setFindingSets] = useState(false)
+  const [viewingArtist, setViewingArtist] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -16,28 +24,57 @@ function App() {
       setLoadingSession(false)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true)
       setSession(newSession)
       setSelectedSetId(null)
+      setFindingSets(false)
+      setViewingArtist(null)
     })
 
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  if (loadingSession) return <p className="status">Loading...</p>
-  if (!session) return <Login />
+  function renderPage() {
+    if (loadingSession) return <p className="status">Loading...</p>
+    if (passwordRecovery) return <ResetPassword onDone={() => setPasswordRecovery(false)} />
+    if (!session && !demoMode) return <Login onDemo={() => setDemoMode(true)} />
 
-  if (selectedSetId) {
+    if (viewingArtist) {
+      return <ArtistWorks artist={viewingArtist} onBack={() => setViewingArtist(null)} />
+    }
+
+    if (selectedSetId) {
+      return (
+        <SetDetail
+          session={session}
+          setId={selectedSetId}
+          onBack={() => setSelectedSetId(null)}
+          onViewArtist={setViewingArtist}
+        />
+      )
+    }
+
+    if (findingSets) {
+      return <FindSets session={session} onBack={() => setFindingSets(false)} />
+    }
+
     return (
-      <SetDetail
+      <Dashboard
         session={session}
-        setId={selectedSetId}
-        onBack={() => setSelectedSetId(null)}
+        onSelectSet={setSelectedSetId}
+        onExitDemo={demoMode ? () => setDemoMode(false) : null}
+        onFindSets={() => setFindingSets(true)}
       />
     )
   }
 
-  return <Dashboard session={session} onSelectSet={setSelectedSetId} />
+  return (
+    <>
+      <SiteHeader />
+      {renderPage()}
+    </>
+  )
 }
 
 export default App

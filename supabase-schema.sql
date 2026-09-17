@@ -13,7 +13,15 @@ create table if not exists cards (
   set_id text not null references sets(id) on delete cascade,
   name text not null,
   number text,
-  image_url text
+  image_url text,
+  types text[],
+  rarity text,
+  supertype text,
+  tcgplayer_url text,
+  description text,
+  artist text,
+  market_price numeric,
+  price_updated_at timestamptz
 );
 
 create table if not exists user_cards (
@@ -24,9 +32,17 @@ create table if not exists user_cards (
   primary key (user_id, card_id)
 );
 
+create table if not exists favorite_sets (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  set_id text not null references sets(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, set_id)
+);
+
 alter table sets enable row level security;
 alter table cards enable row level security;
 alter table user_cards enable row level security;
+alter table favorite_sets enable row level security;
 
 -- Sets and cards are reference data: anyone signed in can read them.
 create policy "sets are readable by authenticated users"
@@ -38,6 +54,45 @@ create policy "cards are readable by authenticated users"
   on cards for select
   to authenticated
   using (true);
+
+-- Any signed-in user can seed a set they favorite (public TCG data, no secrets).
+create policy "authenticated users can add sets"
+  on sets for insert
+  to authenticated
+  with check (true);
+
+create policy "authenticated users can update sets"
+  on sets for update
+  to authenticated
+  using (true)
+  with check (true);
+
+create policy "authenticated users can add cards"
+  on cards for insert
+  to authenticated
+  with check (true);
+
+create policy "authenticated users can update cards"
+  on cards for update
+  to authenticated
+  using (true)
+  with check (true);
+
+-- favorite_sets rows are private to the owning user.
+create policy "users read their own favorites"
+  on favorite_sets for select
+  to authenticated
+  using (auth.uid() = user_id);
+
+create policy "users insert their own favorites"
+  on favorite_sets for insert
+  to authenticated
+  with check (auth.uid() = user_id);
+
+create policy "users delete their own favorites"
+  on favorite_sets for delete
+  to authenticated
+  using (auth.uid() = user_id);
 
 -- user_cards rows are private to the owning user.
 create policy "users read their own card progress"

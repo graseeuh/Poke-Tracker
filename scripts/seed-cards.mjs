@@ -5,6 +5,7 @@
 // never in the browser).
 
 import { createClient } from '@supabase/supabase-js'
+import { extractMarketPrice } from '../src/lib/priceUtils.js'
 
 const setId = process.argv[2]
 if (!setId) {
@@ -54,13 +55,24 @@ async function main() {
   )
   const cards = cardsResp.data
 
-  const rows = cards.map((c) => ({
-    id: c.id,
-    set_id: setId,
-    name: c.name,
-    number: c.number,
-    image_url: c.images?.small ?? null,
-  }))
+  const rows = cards.map((c) => {
+    const { marketPrice, priceUpdatedAt } = extractMarketPrice(c)
+    return {
+      id: c.id,
+      set_id: setId,
+      name: c.name,
+      number: c.number,
+      image_url: c.images?.large ?? c.images?.small ?? null,
+      types: c.types ?? null,
+      rarity: c.rarity ?? null,
+      supertype: c.supertype ?? null,
+      tcgplayer_url: c.tcgplayer?.url ?? null,
+      description: c.flavorText || (c.rules && c.rules.length ? c.rules.join(' ') : null),
+      artist: c.artist ?? null,
+      market_price: marketPrice,
+      price_updated_at: priceUpdatedAt,
+    }
+  })
 
   const { error: cardsError } = await supabase.from('cards').upsert(rows)
   if (cardsError) throw cardsError
