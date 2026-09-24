@@ -4,7 +4,7 @@ A web app for tracking your progress toward completing a "master set" (every
 card) of a Pokemon TCG set released in 2026. Register an account, pick a set,
 and check off cards as you collect them, watching a progress bar fill in.
 
-**Live app:** _add your Netlify URL here after deploying_
+**Live app:** https://poke-tracker-nine.vercel.app
 **Demo video:** _add your unlisted YouTube link here_
 
 ## What it does
@@ -26,7 +26,7 @@ and check off cards as you collect them, watching a progress bar fill in.
 - **Frontend:** React + Vite
 - **Backend/Database:** Supabase (Postgres + Auth)
 - **Card data source:** [pokemontcg.io](https://pokemontcg.io) public API
-- **Deployment:** Netlify
+- **Deployment:** Vercel
 
 ## Project structure
 
@@ -95,12 +95,15 @@ npm run dev
 
 ### 6. Deploy
 
-Push to GitHub, then connect the repo to Netlify:
+Push to GitHub, then import the repo into [Vercel](https://vercel.com):
 
-- Build command: `npm run build`
-- Publish directory: `dist`
-- Add the two `VITE_SUPABASE_*` environment variables in Netlify's site
+- Framework preset: Vite (auto-detected)
+- Build command: `vite build`
+- Output directory: `dist`
+- Add the two `VITE_SUPABASE_*` environment variables in Vercel's project
   settings (never the service role key).
+- Under Settings > Deployment Protection, make sure Vercel Authentication /
+  Password Protection is **disabled** so the app is publicly reachable.
 
 ## Notes
 
