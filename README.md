@@ -9,12 +9,17 @@ and check off cards as you collect them, watching a progress bar fill in.
 
 ## What it does
 
-- Users register, log in, and log out (Supabase Auth).
-- Each 2026 Pokemon TCG set and its cards are stored in the database.
-- Signed-in users can mark individual cards as owned; a per-set progress bar
-  shows how close they are to a master set.
-- Card ownership is private per user (enforced with Supabase Row Level
-  Security), so multiple people can track the same set independently.
+- Anyone can browse and search every 2026 Pokemon TCG set and its full card
+  list with no account (data pulled live from the [pokemontcg.io](https://pokemontcg.io) API).
+- Users register, log in, and log out (Supabase Auth). Logging in is only
+  required to track a set.
+- Signed-in users **favorite** a set (Create) to start tracking it, **view**
+  their tracked sets and card lists on the Dashboard (Read), **mark cards
+  owned/unowned** (Update) with a live progress bar, and **unfavorite** a set
+  (Delete) to stop tracking it — full CRUD over their own tracking data.
+- Card ownership and favorites are private per user (enforced with Supabase
+  Row Level Security), so multiple people can track the same set
+  independently.
 
 ## Technologies used
 
@@ -27,13 +32,21 @@ and check off cards as you collect them, watching a progress bar fill in.
 
 ```
 src/
-  lib/supabaseClient.js   Supabase client setup
-  pages/Login.jsx         Register / log in form
-  pages/Dashboard.jsx     List of sets with progress bars
-  pages/SetDetail.jsx     Card grid with owned checkboxes
-  App.jsx                 Auth state + page routing
-scripts/seed-cards.mjs    One-time script to load a set's cards from the API
-supabase-schema.sql       Database tables + Row Level Security policies
+  lib/supabaseClient.js     Supabase client setup
+  lib/pokemonApi.js         Public pokemontcg.io API client (live set/card data)
+  lib/seedSet.js            Seeds a set's cards into Supabase the first time it's favorited
+  lib/cardMapper.js         Shared API-response -> DB-row mapping
+  lib/priceUtils.js         TCGplayer price extraction helpers
+  components/SiteHeader.jsx Persistent header + auth controls
+  components/CardModal.jsx  Card detail popup
+  pages/Login.jsx           Register / log in form
+  pages/FindSets.jsx        Browse/search all 2026 sets, favorite (star) to track
+  pages/Dashboard.jsx       Signed-in user's tracked sets with progress bars
+  pages/SetDetail.jsx       Rarity-grouped card grid with owned checkboxes
+  pages/ArtistWorks.jsx     Gallery of a card artist's other work
+  App.jsx                   Auth state + view routing
+scripts/seed-cards.mjs      CLI script to bulk-load a set's cards from the API
+supabase-schema.sql         Database tables + Row Level Security policies
 ```
 
 ## Setup instructions
