@@ -117,25 +117,26 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
               className="set-card find-set-card"
               onClick={() => onViewSet(s.id)}
             >
-              <h3>{s.name}</h3>
-              <p className="set-series">{s.series}</p>
-              <p className="progress-label">{s.total} cards &middot; {s.releaseDate}</p>
               <button
-                className={`favorite-toggle ${isFavorite ? 'favorited' : ''}`}
+                className={`favorite-star ${isFavorite ? 'favorited' : ''}`}
                 disabled={isPending}
+                title={
+                  session
+                    ? isFavorite
+                      ? 'Unfavorite'
+                      : 'Favorite'
+                    : 'Log in to favorite'
+                }
                 onClick={(e) => {
                   e.stopPropagation()
                   toggleFavorite(s)
                 }}
               >
-                {isPending
-                  ? 'Working...'
-                  : isFavorite
-                    ? '★ Favorited'
-                    : session
-                      ? '☆ Favorite'
-                      : 'Log in to favorite'}
+                {isFavorite ? '★' : '☆'}
               </button>
+              <h3>{s.name}</h3>
+              <p className="set-series">{s.series}</p>
+              <p className="progress-label">{s.total} cards &middot; {s.releaseDate}</p>
             </div>
           )
         })}

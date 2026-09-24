@@ -118,11 +118,14 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
     try {
       if (!seeded) {
         await ensureSetSeeded(apiSetMeta)
+        setSeeded(true)
+      }
+
+      if (nextOwned) {
         const { error: favError } = await supabase
           .from('favorite_sets')
           .upsert({ user_id: session.user.id, set_id: setId })
         if (favError) throw favError
-        setSeeded(true)
       }
 
       const { error } = await supabase.from('user_cards').upsert({

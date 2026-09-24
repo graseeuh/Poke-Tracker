@@ -344,41 +344,53 @@ h3 {
   margin: 1rem 0 1.5rem;
 }
 
-.favorite-toggle {
-  margin-top: 0.5rem;
-  padding: 0.45rem 0.75rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-mid);
+.favorite-star {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: none;
   background: var(--surface2);
-  color: var(--text);
-  font-size: 0.85rem;
-  font-weight: 600;
+  color: var(--text-faint);
+  font-size: 1rem;
+  line-height: 1;
   cursor: pointer;
-  width: 100%;
+  transition: color 0.15s, transform 0.15s;
 }
 
-.favorite-toggle:hover {
-  border-color: var(--red);
+.favorite-star:hover {
+  color: var(--red);
+  transform: scale(1.1);
 }
 
-.favorite-toggle.favorited {
-  background: var(--red);
-  color: white;
-  border-color: var(--red);
+.favorite-star.favorited {
+  color: var(--red);
 }
 
-.favorite-toggle:disabled {
+.favorite-star:disabled {
   opacity: 0.6;
   cursor: default;
+  transform: none;
 }
 
 .set-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
-@media (max-width: 560px) {
+@media (max-width: 760px) {
+  .set-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
   .set-grid {
     grid-template-columns: 1fr;
   }
@@ -392,6 +404,10 @@ h3 {
   text-align: left;
   cursor: pointer;
   transition: border-color 0.15s, transform 0.15s;
+}
+
+.find-set-card {
+  position: relative;
 }
 
 .set-card:hover {
