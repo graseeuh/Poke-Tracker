@@ -5,8 +5,9 @@ export default function Login({ onCancel }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [code, setCode] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [mode, setMode] = useState('login') // 'login' | 'register' | 'forgot'
+  const [mode, setMode] = useState('login') // 'login' | 'register' | 'forgot' | 'reset-code'
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,6 +18,7 @@ export default function Login({ onCancel }) {
     setInfo('')
     setPassword('')
     setConfirmPassword('')
+    setCode('')
     setShowPassword(false)
   }
 
@@ -28,6 +30,10 @@ export default function Login({ onCancel }) {
     const cleanEmail = email.trim().toLowerCase()
 
     if (mode === 'register' && password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+    if (mode === 'reset-code' && password !== confirmPassword) {
       setError('Passwords do not match.')
       return
     }
@@ -59,19 +65,52 @@ export default function Login({ onCancel }) {
         setPassword('')
         setConfirmPassword('')
       }
-    } else {
+    } else if (mode === 'forgot') {
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: window.location.origin,
       })
-      if (error) setError(error.message)
-      else setInfo('Password reset email sent. Check your inbox for a link to set a new password.')
+      if (error) {
+        setError(error.message)
+      } else {
+        setMode('reset-code')
+        setInfo(
+          `We sent a 6-digit code to ${cleanEmail}. Enter it below with your new password. ` +
+            'Check your spam/junk folder if it does not show up within a minute or two.'
+        )
+      }
+    } else if (mode === 'reset-code') {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: code.trim(),
+        type: 'recovery',
+      })
+      if (verifyError) {
+        setError(verifyError.message)
+      } else {
+        const { error: updateError } = await supabase.auth.updateUser({ password })
+        if (updateError) {
+          setError(updateError.message)
+        }
+        // On success, verifyOtp already started a session; App's
+        // onAuthStateChange listener logs the user in and redirects.
+      }
     }
 
     setLoading(false)
   }
 
-  const titles = { login: 'Welcome back', register: 'Create your account', forgot: 'Reset password' }
-  const buttonLabels = { login: 'Log in', register: 'Register', forgot: 'Send reset email' }
+  const titles = {
+    login: 'Welcome back',
+    register: 'Create your account',
+    forgot: 'Reset password',
+    'reset-code': 'Enter your code',
+  }
+  const buttonLabels = {
+    login: 'Log in',
+    register: 'Register',
+    forgot: 'Send reset code',
+    'reset-code': 'Update password',
+  }
 
   return (
     <div className="auth-page">
@@ -81,7 +120,7 @@ export default function Login({ onCancel }) {
           <h1>Pokemon Master Set Tracker</h1>
         </div>
 
-        {mode !== 'forgot' && (
+        {(mode === 'login' || mode === 'register') && (
           <div className="auth-tabs" role="tablist">
             <button
               type="button"
@@ -104,28 +143,48 @@ export default function Login({ onCancel }) {
           </div>
         )}
 
-        {mode === 'forgot' && <h2>{titles[mode]}</h2>}
+        {(mode === 'forgot' || mode === 'reset-code') && <h2>{titles[mode]}</h2>}
 
-        <label>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            required
-          />
-        </label>
-
-        {mode !== 'forgot' && (
+        {mode !== 'reset-code' && (
           <label>
-            Password
+            Email
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
+          </label>
+        )}
+
+        {mode === 'reset-code' && (
+          <label>
+            6-digit code
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              autoComplete="one-time-code"
+              placeholder="123456"
+              required
+            />
+            <span className="field-hint">Sent to {email.trim().toLowerCase()}</span>
+          </label>
+        )}
+
+        {(mode === 'login' || mode === 'register' || mode === 'reset-code') && (
+          <label>
+            {mode === 'reset-code' ? 'New password' : 'Password'}
             <div className="password-field">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 minLength={6}
                 required
               />
@@ -138,13 +197,13 @@ export default function Login({ onCancel }) {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            {mode === 'register' && <span className="field-hint">At least 6 characters.</span>}
+            {mode !== 'login' && <span className="field-hint">At least 6 characters.</span>}
           </label>
         )}
 
-        {mode === 'register' && (
+        {(mode === 'register' || mode === 'reset-code') && (
           <label>
-            Confirm password
+            Confirm {mode === 'reset-code' ? 'new ' : ''}password
             <input
               type={showPassword ? 'text' : 'password'}
               value={confirmPassword}
@@ -173,6 +232,17 @@ export default function Login({ onCancel }) {
           <button type="button" className="link-button" onClick={() => switchMode('login')}>
             Back to log in
           </button>
+        )}
+
+        {mode === 'reset-code' && (
+          <>
+            <button type="button" className="link-button" onClick={() => switchMode('forgot')}>
+              Didn't get a code? Send again
+            </button>
+            <button type="button" className="link-button" onClick={() => switchMode('login')}>
+              Back to log in
+            </button>
+          </>
         )}
 
         {onCancel && (
