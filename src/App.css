@@ -1,6 +1,8 @@
 :root {
-  --red: #e63f34;
-  --red-dark: #c8342b;
+  --primary: #7c5cff;
+  --primary-dark: #5f3fe0;
+  --accent: #ffcb3d;
+  --accent2: #22d3ee;
   --bg: #f9f7f4;
   --surface: #fff;
   --surface2: #f2f0ec;
@@ -11,6 +13,7 @@
   --text-faint: #9a9a9a;
   --radius: 10px;
   --radius-sm: 6px;
+  --bg-gradient: linear-gradient(120deg, #7c5cff, #22d3ee, #ffcb3d, #ff6ea8, #7c5cff);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,6 +26,7 @@
     --text: #f0f0f0;
     --text-muted: #a0a0a0;
     --text-faint: #666;
+    --bg-gradient: linear-gradient(120deg, #2a1f6b, #0e7490, #6b2454, #2a1f6b);
   }
 }
 
@@ -33,9 +37,30 @@
 body {
   margin: 0;
   font-family: 'Geist', system-ui, -apple-system, sans-serif;
-  background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+  background: var(--bg-gradient);
+  background-size: 400% 400%;
+  animation: bg-flow 26s ease infinite;
+}
+
+@keyframes bg-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+    background-position: 0% 50%;
+  }
 }
 
 h1,
@@ -53,7 +78,7 @@ h3 {
 }
 
 .error {
-  color: var(--red-dark);
+  color: var(--primary-dark);
 }
 
 .action-error {
@@ -75,14 +100,19 @@ h3 {
   gap: 0.6rem;
   padding: 0.85rem 1.5rem;
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .site-logo-mark {
   width: 28px;
   height: 28px;
   border-radius: var(--radius-sm);
-  background: var(--red);
+  background: var(--primary);
   color: white;
   display: flex;
   align-items: center;
@@ -100,7 +130,7 @@ h3 {
 }
 
 .site-wordmark span {
-  color: var(--red);
+  color: var(--primary);
 }
 
 .site-header-nav {
@@ -135,9 +165,6 @@ h3 {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(230, 63, 52, 0.08), transparent 45%),
-    radial-gradient(circle at 85% 90%, rgba(230, 63, 52, 0.06), transparent 45%);
 }
 
 .auth-form {
@@ -166,14 +193,14 @@ h3 {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-sm);
-  background: var(--red);
+  background: var(--primary);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Archivo Black', sans-serif;
   font-size: 1rem;
-  box-shadow: 0 6px 16px rgba(230, 63, 52, 0.35);
+  box-shadow: 0 6px 16px rgba(124, 92, 255, 0.4);
 }
 
 .auth-form h1 {
@@ -239,7 +266,7 @@ h3 {
 
 .auth-form input:focus {
   outline: none;
-  border-color: var(--red);
+  border-color: var(--primary);
 }
 
 .field-hint {
@@ -272,21 +299,21 @@ h3 {
 }
 
 .password-toggle:hover {
-  color: var(--red);
+  color: var(--primary);
 }
 
 .auth-form button {
   padding: 0.6rem;
   border-radius: var(--radius-sm);
   border: none;
-  background: var(--red);
+  background: var(--primary);
   color: white;
   font-weight: 600;
   cursor: pointer;
 }
 
 .auth-form button:hover {
-  background: var(--red-dark);
+  background: var(--primary-dark);
 }
 
 .auth-submit {
@@ -300,7 +327,7 @@ h3 {
 
 .link-button {
   background: none !important;
-  color: var(--red) !important;
+  color: var(--primary) !important;
   font-weight: 400 !important;
   text-decoration: underline;
   font-size: 0.85rem;
@@ -308,9 +335,9 @@ h3 {
 
 .dashboard,
 .set-detail {
-  max-width: 1000px;
+  max-width: 1800px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
 }
 
 .dashboard-header {
@@ -391,9 +418,9 @@ h3 {
 }
 
 .find-sets {
-  max-width: 1000px;
+  max-width: 1800px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
 }
 
 .find-sets-header {
@@ -426,7 +453,7 @@ h3 {
   padding: 0.6rem 1.1rem;
   border-radius: var(--radius-sm);
   border: none;
-  background: var(--red);
+  background: var(--primary);
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
@@ -434,7 +461,7 @@ h3 {
 }
 
 .tracked-sets-cta:hover {
-  background: var(--red-dark);
+  background: var(--primary-dark);
 }
 
 .status-line {
@@ -469,12 +496,12 @@ h3 {
 }
 
 .favorite-star:hover {
-  color: var(--red);
+  color: var(--primary);
   transform: scale(1.1);
 }
 
 .favorite-star.favorited {
-  color: var(--red);
+  color: var(--primary);
 }
 
 .favorite-star:disabled {
@@ -485,8 +512,14 @@ h3 {
 
 .set-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 1100px) {
+  .set-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 760px) {
@@ -508,7 +541,8 @@ h3 {
   padding: 1rem;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: border-color 0.2s, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s;
 }
 
 .find-set-card {
@@ -516,8 +550,9 @@ h3 {
 }
 
 .set-card:hover {
-  border-color: var(--border-mid);
-  transform: translateY(-2px);
+  border-color: var(--primary);
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 16px 32px rgba(124, 92, 255, 0.22), 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
 .set-logo {
@@ -566,7 +601,7 @@ h3 {
 
 .progress-fill {
   height: 100%;
-  background: var(--red);
+  background: var(--primary);
 }
 
 .progress-label {
@@ -663,13 +698,21 @@ h3 {
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  gap: 1.1rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 900px) {
   .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
 }
 
@@ -685,13 +728,14 @@ h3 {
   gap: 0.5rem;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: border-color 0.2s, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s;
 }
 
 .card-tile:hover {
-  border-color: var(--border-mid);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary);
+  transform: translateY(-8px) scale(1.05) rotate(-1deg);
+  box-shadow: 0 18px 34px rgba(124, 92, 255, 0.28), 0 6px 14px rgba(0, 0, 0, 0.16);
+  z-index: 1;
 }
 
 .card-tile.owned {
@@ -879,8 +923,8 @@ h3 {
 }
 
 .artist-link:hover {
-  border-color: var(--red);
-  color: var(--red);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .market-price {
@@ -923,14 +967,14 @@ h3 {
 
 .price-link {
   display: inline-block;
-  color: var(--red);
+  color: var(--primary);
   font-weight: 600;
   text-decoration: none;
 }
 
 .price-link:hover {
   text-decoration: underline;
-  color: var(--red-dark);
+  color: var(--primary-dark);
 }
 
 .price-unavailable {
