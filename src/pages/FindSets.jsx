@@ -3,6 +3,25 @@ import { supabase } from '../lib/supabaseClient'
 import { fetch2026Sets } from '../lib/pokemonApi'
 import { ensureSetSeeded } from '../lib/seedSet'
 
+// Falls back to our own already-seeded Supabase data when the live
+// pokemontcg.io API is down (it fails intermittently — 500s/502s — often
+// enough that browsing shouldn't hard-fail because of it). Shaped to match
+// what the live API returns, minus set logo/symbol images we don't store.
+async function fetchSetsFallback() {
+  const { data, error } = await supabase
+    .from('sets')
+    .select('*')
+    .order('release_date', { ascending: true })
+  if (error) throw error
+  return (data || []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    series: s.series,
+    total: s.total,
+    releaseDate: s.release_date ? s.release_date.replaceAll('-', '/') : '',
+  }))
+}
+
 export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, onViewSet }) {
   const [sets, setSets] = useState([])
   const [favoriteIds, setFavoriteIds] = useState(new Set())
@@ -10,6 +29,7 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [usingFallback, setUsingFallback] = useState(false)
   const [stats, setStats] = useState(null)
 
   useEffect(() => {
@@ -34,17 +54,27 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
   async function loadSets() {
     setLoading(true)
     setError('')
+    setUsingFallback(false)
+
+    const favPromise = session
+      ? supabase.from('favorite_sets').select('set_id').eq('user_id', session.user.id)
+      : Promise.resolve({ data: [] })
+
     try {
-      const [apiSets, favResp] = await Promise.all([
-        fetch2026Sets(),
-        session
-          ? supabase.from('favorite_sets').select('set_id').eq('user_id', session.user.id)
-          : Promise.resolve({ data: [] }),
-      ])
+      const [apiSets, favResp] = await Promise.all([fetch2026Sets(), favPromise])
       setSets(apiSets)
       setFavoriteIds(new Set((favResp.data || []).map((r) => r.set_id)))
     } catch (err) {
-      setError(err.message)
+      // Live API is down — fall back to the sets we already have seeded
+      // in our own database rather than hard-failing the whole page.
+      try {
+        const [fallbackSets, favResp] = await Promise.all([fetchSetsFallback(), favPromise])
+        setSets(fallbackSets)
+        setFavoriteIds(new Set((favResp.data || []).map((r) => r.set_id)))
+        setUsingFallback(true)
+      } catch (fallbackErr) {
+        setError(fallbackErr.message)
+      }
     }
     setLoading(false)
   }
@@ -154,6 +184,12 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
         </div>
       </header>
 
+      {usingFallback && (
+        <p className="status fallback-notice">
+          The live card catalog is temporarily unavailable, so this is showing sets already saved
+          in our database instead. Set logos won't show up until the live catalog is back.
+        </p>
+      )}
       {error && <p className="error">{error}</p>}
       {loading && <p className="status">Loading 2026 sets...</p>}
 

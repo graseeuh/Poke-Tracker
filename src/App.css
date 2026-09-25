@@ -91,6 +91,17 @@ h3 {
   border: 1px solid rgba(200, 52, 43, 0.25);
 }
 
+.fallback-notice {
+  max-width: 640px;
+  margin: 0 auto 1.25rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 .info {
   color: #2d7a3e;
 }
