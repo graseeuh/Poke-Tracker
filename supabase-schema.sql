@@ -24,17 +24,12 @@ create table if not exists cards (
   price_updated_at timestamptz
 );
 
--- variant distinguishes print variants of the same card (e.g. a Common's
--- "normal" vs "reverseHolo" printing), so a user can own one without the
--- other. Cards with only one real printing (Rare and above, which are
--- already foil by rarity) just use the default 'normal' variant.
 create table if not exists user_cards (
   user_id uuid not null references auth.users(id) on delete cascade,
   card_id text not null references cards(id) on delete cascade,
-  variant text not null default 'normal',
   owned boolean not null default false,
   updated_at timestamptz not null default now(),
-  primary key (user_id, card_id, variant)
+  primary key (user_id, card_id)
 );
 
 create table if not exists favorite_sets (
