@@ -87,7 +87,7 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
         </p>
         {session && (
           <button className="tracked-sets-cta" onClick={onGoToTrackedSets}>
-            My Tracked Sets{favoriteIds.size > 0 ? ` (${favoriteIds.size})` : ''} &rarr;
+            My Binder{favoriteIds.size > 0 ? ` (${favoriteIds.size})` : ''} &rarr;
           </button>
         )}
       </header>

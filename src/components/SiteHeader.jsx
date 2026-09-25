@@ -10,7 +10,7 @@ export default function SiteHeader({ session, onLogin, onLogout, onMyTrackedSets
         {session ? (
           <>
             <span className="user-email">{session.user.email}</span>
-            <button onClick={onMyTrackedSets}>My Tracked Sets</button>
+            <button onClick={onMyTrackedSets}>My Binder</button>
             <button onClick={onLogout}>Log out</button>
           </>
         ) : (

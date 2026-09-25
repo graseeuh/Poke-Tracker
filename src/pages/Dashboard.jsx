@@ -87,12 +87,39 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
   if (loading) return <p className="status">Loading sets...</p>
   if (error) return <p className="error">{error}</p>
 
+  const totalOwned = Object.values(progress).reduce((sum, p) => sum + p.owned, 0)
+  const totalCards = Object.values(progress).reduce((sum, p) => sum + p.total, 0)
+  const totalValue = Object.values(progress).reduce((sum, p) => sum + p.value, 0)
+
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <h1>Your Tracked Sets</h1>
+        <h1>Your Binder</h1>
         <button onClick={onFindSets}>Browse all 2026 sets</button>
       </header>
+
+      {sets.length > 0 && (
+        <div className="binder-stats">
+          <div className="binder-stat">
+            <span className="binder-stat-value">{totalOwned}</span>
+            <span className="binder-stat-label">cards collected</span>
+          </div>
+          <div className="binder-stat">
+            <span className="binder-stat-value">{sets.length}</span>
+            <span className="binder-stat-label">sets tracked</span>
+          </div>
+          <div className="binder-stat">
+            <span className="binder-stat-value">${totalValue.toFixed(2)}</span>
+            <span className="binder-stat-label">collection value</span>
+          </div>
+          <div className="binder-stat">
+            <span className="binder-stat-value">
+              {totalCards ? Math.round((totalOwned / totalCards) * 100) : 0}%
+            </span>
+            <span className="binder-stat-label">overall complete</span>
+          </div>
+        </div>
+      )}
 
       {sets.length === 0 && (
         <p className="status">
