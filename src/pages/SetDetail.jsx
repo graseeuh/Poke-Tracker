@@ -322,9 +322,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
               {section.cards.map((card) => (
                 <div
                   key={card.key}
-                  className={`card-tile ${ownedMap[card.key] ? 'owned' : ''} ${
-                    card.variant === 'reverseHolo' ? 'variant-reverse-holo' : ''
-                  }`}
+                  className={`card-tile ${ownedMap[card.key] ? 'owned' : ''}`}
                   onClick={() => setSelectedCard(card)}
                 >
                   {ownedMap[card.key] && (
@@ -332,15 +330,15 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
                       ✓
                     </span>
                   )}
-                  {card.variant !== 'normal' && (
-                    <span className="variant-badge">&#10024; {VARIANT_LABELS[card.variant]}</span>
-                  )}
                   <div
                     className={`card-image-wrap ${
                       card.variant === 'reverseHolo' ? 'variant-reverse-holo' : ''
                     }`}
                   >
                     <img src={card.image_url} alt={card.name} loading="lazy" />
+                    {card.variant !== 'normal' && (
+                      <span className="variant-badge">{VARIANT_LABELS[card.variant]}</span>
+                    )}
                   </div>
                   <span>
                     {card.number}. {card.name}

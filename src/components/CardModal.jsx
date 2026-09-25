@@ -14,6 +14,9 @@ export default function CardModal({ card, owned, onToggleOwned, onClose, onViewA
           className={`modal-image-wrap ${card.variant === 'reverseHolo' ? 'variant-reverse-holo' : ''}`}
         >
           <img src={card.image_url} alt={card.name} className="modal-image" />
+          {card.variant && card.variant !== 'normal' && (
+            <span className="variant-badge">{VARIANT_LABELS[card.variant]}</span>
+          )}
         </div>
 
         <div className="modal-info">

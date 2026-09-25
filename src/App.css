@@ -989,46 +989,41 @@ h3 {
 
 .variant-badge {
   position: absolute;
-  top: 0.35rem;
-  left: 0.35rem;
+  bottom: 6%;
+  left: 6%;
   z-index: 2;
   padding: 0.1rem 0.4rem;
-  border-radius: 999px;
-  background: linear-gradient(120deg, #a78bfa, #38bdf8, #f472b6);
-  background-size: 200% 200%;
-  color: white;
+  border-radius: 3px;
+  background: rgba(10, 12, 20, 0.85);
+  color: #7dd3fc;
   font-size: 0.55rem;
   font-weight: 700;
-  animation: bg-flow 4s ease infinite;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
-/* Foil shimmer for reverse holo variants. Real reverse holo foil is a
-   fine sparkle texture with a soft light sweep (not a color wash) — this
-   uses a subtle repeating sparkle pattern plus a faint moving highlight,
-   blended with "overlay" so it reads as reflected light on the existing
-   card art rather than a tinted layer on top of it. */
+.modal-image-wrap .variant-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.55rem;
+}
+
+/* Reverse holo cards get a Poke Ball pattern watermarked into the card's
+   text box (the lower band where the attack/ability text sits) — this is
+   the real visual signature real reverse holo prints use, not a generic
+   shimmer sweep across the whole card. Static, no animation, so it reads
+   as a printed pattern rather than an effect. */
 .variant-reverse-holo::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      115deg,
-      rgba(255, 255, 255, 0.16) 0px,
-      rgba(255, 255, 255, 0.16) 1px,
-      transparent 1px,
-      transparent 5px
-    ),
-    linear-gradient(
-      115deg,
-      transparent 40%,
-      rgba(255, 255, 255, 0.28) 49%,
-      rgba(255, 255, 255, 0.34) 50%,
-      rgba(255, 255, 255, 0.28) 51%,
-      transparent 60%
-    );
-  background-size: 100% 100%, 220% 220%;
-  animation: bg-flow 8s ease infinite;
+  left: 8%;
+  right: 8%;
+  bottom: 5%;
+  height: 32%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='white' stroke-width='6'/%3E%3Cpath d='M10 50H90' stroke='white' stroke-width='6'/%3E%3Ccircle cx='50' cy='50' r='13' fill='white'/%3E%3Ccircle cx='50' cy='50' r='13' fill='none' stroke='%23222' stroke-width='3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 46% auto;
+  opacity: 0.5;
   mix-blend-mode: overlay;
   pointer-events: none;
 }
