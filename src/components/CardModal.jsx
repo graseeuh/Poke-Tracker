@@ -58,7 +58,7 @@ export default function CardModal({ card, owned, onToggleOwned, onClose, onViewA
               </p>
             )}
 
-            {card.tcgplayer_url && (
+            {card.tcgplayer_url ? (
               <a
                 className="price-link"
                 href={card.tcgplayer_url}
@@ -67,10 +67,15 @@ export default function CardModal({ card, owned, onToggleOwned, onClose, onViewA
               >
                 View on TCGplayer &#8599;
               </a>
+            ) : (
+              <p className="price-unavailable">No TCGplayer purchase link for this card yet.</p>
             )}
             <p className="price-disclaimer">
               Pricing comes from TCGplayer, a third party, and isn't a valuation. TCGplayer
-              doesn't allow its pages to be embedded, so this opens their site in a new tab.
+              doesn't allow its pages to be embedded, so this opens their site in a new tab. If
+              your browser blocks it, it's redirecting through TCGplayer's own affiliate link
+              chain, which some ad/tracker blockers flag &mdash; try allowing this site or opening
+              the link in a new tab manually.
             </p>
           </div>
         </div>
