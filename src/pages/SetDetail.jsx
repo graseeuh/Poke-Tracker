@@ -17,19 +17,19 @@ const RARITY_ORDER = [
   'Mega Hyper Rare',
 ]
 
-// Chase rarities get their own showcase section, rarest first; everything
-// else (Common/Uncommon/Rare/etc.) is grouped together as "Main set".
-const SECTION_ORDER = [
-  'Mega Hyper Rare',
-  'Special Illustration Rare',
-  'Illustration Rare',
-  'Ultra Rare',
-  'Double Rare',
-]
+// Base rarities are grouped together as "Main set"; every other rarity a
+// set uses (which varies a lot between eras — "Mega Hyper Rare" and
+// "Pikachu Rare" in newer sets, "Rare Holo GX"/"LEGEND"/"Rare Secret" in
+// older ones) gets its own showcase section. This is data-driven instead
+// of a hardcoded rarity list so every set gets a consistent "common stuff
+// grouped, chase cards showcased" layout regardless of which rarity names
+// it happens to use.
+const BASE_RARITIES = new Set(['Common', 'Uncommon', 'Rare'])
 const MAIN_SET_LABEL = 'Main set'
 
 function sectionFor(card) {
-  return SECTION_ORDER.includes(card.rarity) ? card.rarity : MAIN_SET_LABEL
+  if (!card.rarity || BASE_RARITIES.has(card.rarity)) return MAIN_SET_LABEL
+  return card.rarity
 }
 
 function sceneClassFor(label) {
@@ -198,9 +198,14 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
       groups[label] = groups[label] || []
       groups[label].push(card)
     }
-    return [...SECTION_ORDER, MAIN_SET_LABEL]
-      .filter((label) => groups[label]?.length)
-      .map((label) => ({ label, cards: groups[label] }))
+    // Chase sections shown rarest (fewest cards) first, "Main set" last.
+    const chaseLabels = Object.keys(groups)
+      .filter((label) => label !== MAIN_SET_LABEL)
+      .sort((a, b) => groups[a].length - groups[b].length)
+    const orderedLabels = groups[MAIN_SET_LABEL]
+      ? [...chaseLabels, MAIN_SET_LABEL]
+      : chaseLabels
+    return orderedLabels.map((label) => ({ label, cards: groups[label] }))
   }, [filteredCards])
 
   if (loading) return <p className="status">Loading set...</p>

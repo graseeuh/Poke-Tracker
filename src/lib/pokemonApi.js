@@ -29,8 +29,18 @@ export async function fetchSetMeta(setId) {
 }
 
 export async function fetchSetCards(setId) {
-  const resp = await fetchWithRetry(`${API_BASE}/cards?q=set.id:${setId}&pageSize=250`)
-  return resp.data
+  const pageSize = 250
+  let page = 1
+  let cards = []
+  while (true) {
+    const resp = await fetchWithRetry(
+      `${API_BASE}/cards?q=set.id:${setId}&pageSize=${pageSize}&page=${page}`
+    )
+    cards = cards.concat(resp.data)
+    if (resp.data.length < pageSize) break
+    page += 1
+  }
+  return cards
 }
 
 export async function fetchCardsByArtist(artist) {

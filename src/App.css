@@ -335,9 +335,9 @@ h3 {
 
 .dashboard,
 .set-detail {
-  max-width: 1800px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem clamp(1.25rem, 4vw, 3.5rem);
 }
 
 .dashboard-header {
@@ -418,9 +418,9 @@ h3 {
 }
 
 .find-sets {
-  max-width: 1800px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem clamp(1.25rem, 4vw, 3.5rem);
 }
 
 .find-sets-header {
@@ -641,6 +641,10 @@ h3 {
   padding: 1.25rem;
   border-radius: calc(var(--radius) + 10px);
   border: 1px solid var(--border);
+  /* Default backdrop for any rarity name that doesn't have a specific
+     scene below (sets use very different rarity vocabularies, especially
+     older ones) — every section still gets a themed background. */
+  background: linear-gradient(160deg, rgba(124, 92, 255, 0.14), rgba(34, 211, 238, 0.1));
 }
 
 /* Themed backdrop gradients per rarity tier — original CSS gradients, not
@@ -675,6 +679,37 @@ h3 {
     radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.18), transparent 2%),
     radial-gradient(circle at 55% 80%, rgba(255, 255, 255, 0.2), transparent 3%),
     linear-gradient(160deg, rgba(255, 205, 90, 0.3), rgba(190, 60, 180, 0.2));
+}
+
+.rarity-scene-pikachu-rare {
+  background:
+    radial-gradient(circle at 25% 30%, rgba(255, 255, 255, 0.25), transparent 4%),
+    radial-gradient(circle at 75% 70%, rgba(255, 255, 255, 0.2), transparent 3%),
+    linear-gradient(160deg, rgba(255, 214, 51, 0.32), rgba(255, 140, 0, 0.16));
+}
+
+.rarity-scene-futuristic-rare {
+  background: linear-gradient(160deg, rgba(148, 163, 184, 0.26), rgba(56, 189, 248, 0.16));
+}
+
+/* Legacy chase rarities (GX/EX/VMAX/VSTAR/LEGEND/Secret/etc. from older
+   sets like the Classic Collection) share one moodier "vintage" scene
+   since there are too many historical rarity names to theme individually. */
+.rarity-scene-rare-holo-gx,
+.rarity-scene-rare-holo-ex,
+.rarity-scene-rare-holo-v,
+.rarity-scene-rare-holo-vmax,
+.rarity-scene-rare-holo-vstar,
+.rarity-scene-rare-holo-lv-x,
+.rarity-scene-rare-secret,
+.rarity-scene-rare-prime,
+.rarity-scene-rare-break,
+.rarity-scene-rare-ultra,
+.rarity-scene-amazing-rare,
+.rarity-scene-legend {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), transparent 3%),
+    linear-gradient(160deg, rgba(217, 119, 6, 0.24), rgba(120, 53, 15, 0.18));
 }
 
 .rarity-section-heading {

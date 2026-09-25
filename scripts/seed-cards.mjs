@@ -50,10 +50,17 @@ async function main() {
   console.log(`Saved set: ${set.name} (${set.total} cards)`)
 
   console.log('Fetching cards...')
-  const cardsResp = await fetchWithRetry(
-    `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&pageSize=250`
-  )
-  const cards = cardsResp.data
+  const pageSize = 250
+  let page = 1
+  let cards = []
+  while (true) {
+    const cardsResp = await fetchWithRetry(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&pageSize=${pageSize}&page=${page}`
+    )
+    cards = cards.concat(cardsResp.data)
+    if (cardsResp.data.length < pageSize) break
+    page += 1
+  }
 
   const rows = cards.map((c) => toCardRow(c, setId))
 
