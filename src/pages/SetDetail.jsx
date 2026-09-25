@@ -32,10 +32,19 @@ function sectionFor(card) {
   return SECTION_ORDER.includes(card.rarity) ? card.rarity : MAIN_SET_LABEL
 }
 
+function sceneClassFor(label) {
+  const slug = label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+  return `rarity-scene-${slug}`
+}
+
 export default function SetDetail({ session, setId, onBack, onViewArtist, onRequireLogin }) {
   const [set, setSet] = useState(null)
   const [cards, setCards] = useState([])
   const [ownedMap, setOwnedMap] = useState({}) // { [cardId]: boolean }
+  const [justMarked, setJustMarked] = useState(null) // cardId to play the owned-bubble pop animation for
   const [seeded, setSeeded] = useState(true) // false = viewing live API data, not yet tracked
   const [apiSetMeta, setApiSetMeta] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -114,6 +123,11 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
 
     const nextOwned = !ownedMap[cardId]
     setOwnedMap((prev) => ({ ...prev, [cardId]: nextOwned }))
+
+    if (nextOwned) {
+      setJustMarked(cardId)
+      setTimeout(() => setJustMarked((id) => (id === cardId ? null : id)), 600)
+    }
 
     try {
       if (!seeded) {
@@ -274,7 +288,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
       {sections.map((section) => {
         const sectionOwned = section.cards.filter((c) => ownedMap[c.id]).length
         return (
-          <section key={section.label} className="rarity-section">
+          <section key={section.label} className={`rarity-section ${sceneClassFor(section.label)}`}>
             <h2 className="rarity-section-heading">
               {section.label}
               <span className="rarity-section-count">
@@ -288,6 +302,11 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
                   className={`card-tile ${ownedMap[card.id] ? 'owned' : ''}`}
                   onClick={() => setSelectedCard(card)}
                 >
+                  {ownedMap[card.id] && (
+                    <span className={`owned-bubble ${justMarked === card.id ? 'pop' : ''}`}>
+                      ✓
+                    </span>
+                  )}
                   <img src={card.image_url} alt={card.name} loading="lazy" />
                   <span>
                     {card.number}. {card.name}

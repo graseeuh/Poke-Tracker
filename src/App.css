@@ -603,6 +603,43 @@ h3 {
 
 .rarity-section {
   margin-bottom: 2rem;
+  padding: 1.25rem;
+  border-radius: calc(var(--radius) + 10px);
+  border: 1px solid var(--border);
+}
+
+/* Themed backdrop gradients per rarity tier — original CSS gradients, not
+   copied artwork, so there's no license risk in a public repo. */
+.rarity-scene-main-set {
+  background: linear-gradient(160deg, rgba(90, 170, 110, 0.14), rgba(60, 120, 150, 0.08));
+}
+
+.rarity-scene-double-rare {
+  background: linear-gradient(160deg, rgba(56, 178, 158, 0.2), rgba(30, 90, 120, 0.12));
+}
+
+.rarity-scene-ultra-rare {
+  background: linear-gradient(160deg, rgba(88, 196, 221, 0.2), rgba(123, 97, 255, 0.16));
+}
+
+.rarity-scene-illustration-rare {
+  background: linear-gradient(160deg, rgba(255, 154, 107, 0.22), rgba(214, 93, 177, 0.16));
+}
+
+.rarity-scene-special-illustration-rare {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.18), transparent 3%),
+    radial-gradient(circle at 70% 65%, rgba(255, 255, 255, 0.14), transparent 2%),
+    radial-gradient(circle at 40% 85%, rgba(255, 255, 255, 0.16), transparent 2%),
+    linear-gradient(160deg, rgba(90, 70, 200, 0.26), rgba(20, 20, 70, 0.2));
+}
+
+.rarity-scene-mega-hyper-rare {
+  background:
+    radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.22), transparent 3%),
+    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.18), transparent 2%),
+    radial-gradient(circle at 55% 80%, rgba(255, 255, 255, 0.2), transparent 3%),
+    linear-gradient(160deg, rgba(255, 205, 90, 0.3), rgba(190, 60, 180, 0.2));
 }
 
 .rarity-section-heading {
@@ -626,17 +663,18 @@ h3 {
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 1.1rem;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 420px) {
   .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
   }
 }
 
 .card-tile {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -646,17 +684,17 @@ h3 {
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  opacity: 0.55;
-  transition: opacity 0.15s, border-color 0.15s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
 .card-tile:hover {
   border-color: var(--border-mid);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .card-tile.owned {
-  opacity: 1;
   outline: 2px solid #2d7a3e;
 }
 
@@ -685,6 +723,43 @@ h3 {
   background: #2d7a3e;
   color: white;
   border-color: #2d7a3e;
+}
+
+.owned-bubble {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #2d7a3e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.owned-bubble.pop {
+  animation: bubble-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bubble-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .badge-row {
