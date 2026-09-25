@@ -10,10 +10,26 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [stats, setStats] = useState(null)
 
   useEffect(() => {
     loadSets()
+    loadStats()
   }, [session])
+
+  async function loadStats() {
+    const [cardsCount, setsCount, artistRows] = await Promise.all([
+      supabase.from('cards').select('id', { count: 'exact', head: true }),
+      supabase.from('sets').select('id', { count: 'exact', head: true }),
+      supabase.from('cards').select('artist').not('artist', 'is', null),
+    ])
+    const artistCount = new Set((artistRows.data || []).map((r) => r.artist)).size
+    setStats({
+      cards: cardsCount.count || 0,
+      sets: setsCount.count || 0,
+      artists: artistCount,
+    })
+  }
 
   async function loadSets() {
     setLoading(true)
@@ -78,27 +94,65 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
 
   return (
     <div className="find-sets">
-      <header className="find-sets-header">
-        <h1>Find 2026 Sets</h1>
-        <p className="status-line">
-          {session
-            ? 'Favorite a set to start tracking it.'
-            : 'Browse freely — log in to favorite a set and track your progress.'}
-        </p>
-        {session && (
-          <button className="tracked-sets-cta" onClick={onGoToTrackedSets}>
-            My Binder{favoriteIds.size > 0 ? ` (${favoriteIds.size})` : ''} &rarr;
-          </button>
-        )}
-      </header>
+      <header className="hero">
+        <div className="hero-callouts">
+          <div className="hero-callout hero-callout-1">
+            <span className="hero-callout-tag">NEW</span>
+            <strong>Rarity showcases</strong>
+            <span>Chase cards get their own themed section, every set.</span>
+          </div>
+          <div className="hero-callout hero-callout-2">
+            <span className="hero-callout-tag">TRACKED</span>
+            <strong>Card-by-card progress</strong>
+            <span>Mark what you own and watch your binder fill in.</span>
+          </div>
+        </div>
 
-      <input
-        type="search"
-        className="search-input find-sets-search"
-        placeholder="Search 2026 sets by name..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+        <div className="hero-content">
+          <h1 className="hero-title">
+            TRACK EVERY
+            <br />
+            <span className="hero-gradient-text">MASTER SET</span>
+          </h1>
+          <p className="hero-subtitle">
+            {session
+              ? 'Favorite a set to start tracking it.'
+              : 'Browse freely — log in to favorite a set and track your progress.'}
+          </p>
+
+          <div className="hero-search-row">
+            <input
+              type="search"
+              className="search-input find-sets-search"
+              placeholder="Search 2026 sets by name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {session && (
+              <button className="tracked-sets-cta" onClick={onGoToTrackedSets}>
+                My Binder{favoriteIds.size > 0 ? ` (${favoriteIds.size})` : ''} &rarr;
+              </button>
+            )}
+          </div>
+
+          {stats && (
+            <div className="hero-stats">
+              <div className="hero-stat">
+                <strong>{stats.cards.toLocaleString()}</strong>
+                <span>cards indexed</span>
+              </div>
+              <div className="hero-stat">
+                <strong>{stats.sets}</strong>
+                <span>sets tracked</span>
+              </div>
+              <div className="hero-stat">
+                <strong>{stats.artists}</strong>
+                <span>illustrators credited</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
 
       {error && <p className="error">{error}</p>}
       {loading && <p className="status">Loading 2026 sets...</p>}

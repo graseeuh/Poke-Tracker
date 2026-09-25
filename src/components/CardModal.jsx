@@ -27,10 +27,14 @@ export default function CardModal({ card, owned, onToggleOwned, onClose, onViewA
 
           {card.description && <p className="modal-description">{card.description}</p>}
 
-          {card.artist && (
+          {card.artist ? (
             <button className="artist-link" onClick={() => onViewArtist(card.artist)}>
               &#127912; Illustrated by {card.artist} &mdash; see more of their work
             </button>
+          ) : (
+            <p className="artist-unavailable">
+              &#127912; Illustrator not listed for this card yet.
+            </p>
           )}
 
           <button
