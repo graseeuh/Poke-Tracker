@@ -147,7 +147,7 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
           <p className="hero-subtitle">
             {session
               ? 'Favorite a set to start tracking it.'
-              : 'Browse freely — log in to favorite a set and track your progress.'}
+              : 'Browse freely, log in to favorite a set and track your progress.'}
           </p>
 
           <div className="hero-search-row">

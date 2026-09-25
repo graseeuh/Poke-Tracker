@@ -2,12 +2,27 @@
 
 const API_BASE = 'https://api.pokemontcg.io/v2'
 
-async function fetchWithRetry(url, attempts = 5) {
+// Kept short on purpose: this public API is often down (500s/502s), and a
+// long retry cascade just makes users stare at a loading screen before the
+// database fallback (see FindSets.jsx) ever gets a chance to kick in. A
+// per-attempt timeout also guards against a request that hangs instead of
+// erroring, which a plain fetch() has no protection against on its own.
+async function fetchWithRetry(url, attempts = 3, timeoutMs = 6000) {
   for (let i = 0; i < attempts; i++) {
-    const res = await fetch(url)
-    if (res.ok) return res.json()
-    if (i === attempts - 1) throw new Error(`Request failed (${res.status}): ${url}`)
-    await new Promise((r) => setTimeout(r, 1000 * 2 ** i))
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const res = await fetch(url, { signal: controller.signal })
+      if (res.ok) return res.json()
+      if (i === attempts - 1) throw new Error(`Request failed (${res.status}): ${url}`)
+    } catch (err) {
+      if (i === attempts - 1) {
+        throw err.name === 'AbortError' ? new Error(`Request timed out: ${url}`) : err
+      }
+    } finally {
+      clearTimeout(timer)
+    }
+    await new Promise((r) => setTimeout(r, 600 * 2 ** i))
   }
 }
 

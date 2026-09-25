@@ -94,7 +94,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
         )
       } catch (err) {
         setLoadError(
-          'Could not load this set from the Pokemon TCG API — it may be temporarily down. ' +
+          'Could not load this set from the Pokemon TCG API, it may be temporarily down. ' +
             `(${err.message})`
         )
         setLoading(false)
@@ -238,8 +238,8 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
           </div>
           <p className="progress-label">
             {ownedCount} / {cards.length} owned ({ownedPct}%)
-            {!session && ' — log in to track your progress'}
-            {session && !seeded && ' — mark a card to start tracking this set'}
+            {!session && ', log in to track your progress'}
+            {session && !seeded && ', mark a card to start tracking this set'}
           </p>
           {ownedCount > 0 && (
             <p className="collection-value">
