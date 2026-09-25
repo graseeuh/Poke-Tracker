@@ -1,3 +1,5 @@
+import { VARIANT_LABELS } from '../lib/variants'
+
 export default function CardModal({ card, owned, onToggleOwned, onClose, onViewArtist }) {
   if (!card) return null
 
@@ -8,7 +10,11 @@ export default function CardModal({ card, owned, onToggleOwned, onClose, onViewA
           &times;
         </button>
 
-        <img src={card.image_url} alt={card.name} className="modal-image" />
+        <div
+          className={`modal-image-wrap ${card.variant === 'reverseHolo' ? 'variant-reverse-holo' : ''}`}
+        >
+          <img src={card.image_url} alt={card.name} className="modal-image" />
+        </div>
 
         <div className="modal-info">
           <h2>{card.name}</h2>
@@ -18,6 +24,9 @@ export default function CardModal({ card, owned, onToggleOwned, onClose, onViewA
 
           <div className="badge-row">
             {card.rarity && <span className="badge badge-rarity">{card.rarity}</span>}
+            {card.variant && card.variant !== 'normal' && (
+              <span className="badge badge-variant">&#10024; {VARIANT_LABELS[card.variant]}</span>
+            )}
             {(card.types || []).map((t) => (
               <span key={t} className={`badge badge-type badge-type-${t.toLowerCase()}`}>
                 {t}

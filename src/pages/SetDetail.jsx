@@ -4,6 +4,7 @@ import { fetchSetMeta, fetchSetCards } from '../lib/pokemonApi'
 import { toCardRow } from '../lib/cardMapper'
 import { ensureSetSeeded } from '../lib/seedSet'
 import CardModal from '../components/CardModal'
+import { VARIANT_LABELS, variantsFor, instanceKey } from '../lib/variants'
 
 const RARITY_ORDER = [
   'Common',
@@ -105,28 +106,29 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
     if (session) {
       const { data: ownedData } = await supabase
         .from('user_cards')
-        .select('card_id, owned')
+        .select('card_id, variant, owned')
         .eq('user_id', session.user.id)
 
       const map = {}
-      for (const row of ownedData || []) map[row.card_id] = row.owned
+      for (const row of ownedData || []) map[instanceKey(row.card_id, row.variant)] = row.owned
       setOwnedMap(map)
     }
     setLoading(false)
   }
 
-  async function toggleOwned(cardId) {
+  async function toggleOwned(cardId, variant = 'normal') {
     if (!session) {
       onRequireLogin()
       return
     }
 
-    const nextOwned = !ownedMap[cardId]
-    setOwnedMap((prev) => ({ ...prev, [cardId]: nextOwned }))
+    const key = instanceKey(cardId, variant)
+    const nextOwned = !ownedMap[key]
+    setOwnedMap((prev) => ({ ...prev, [key]: nextOwned }))
 
     if (nextOwned) {
-      setJustMarked(cardId)
-      setTimeout(() => setJustMarked((id) => (id === cardId ? null : id)), 600)
+      setJustMarked(key)
+      setTimeout(() => setJustMarked((id) => (id === key ? null : id)), 600)
     }
 
     try {
@@ -145,15 +147,29 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
       const { error } = await supabase.from('user_cards').upsert({
         user_id: session.user.id,
         card_id: cardId,
+        variant,
         owned: nextOwned,
         updated_at: new Date().toISOString(),
       })
       if (error) throw error
     } catch (err) {
-      setOwnedMap((prev) => ({ ...prev, [cardId]: !nextOwned }))
+      setOwnedMap((prev) => ({ ...prev, [key]: !nextOwned }))
       setActionError(err.message)
     }
   }
+
+  // Every card expands into one instance per real-world print variant
+  // (see variantsFor) so Normal and Reverse Holo printings of the same
+  // card can be tracked and displayed independently.
+  const cardInstances = useMemo(() => {
+    const out = []
+    for (const card of cards) {
+      for (const variant of variantsFor(card)) {
+        out.push({ ...card, variant, key: instanceKey(card.id, variant) })
+      }
+    }
+    return out
+  }, [cards])
 
   const types = useMemo(() => {
     const set = new Set()
@@ -170,7 +186,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
   }, [cards])
 
   const filteredCards = useMemo(() => {
-    let result = cards
+    let result = cardInstances
 
     if (search.trim()) {
       const q = search.trim().toLowerCase()
@@ -189,7 +205,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
     })
 
     return result
-  }, [cards, search, typeFilter, rarityFilter, sortBy])
+  }, [cardInstances, search, typeFilter, rarityFilter, sortBy])
 
   const sections = useMemo(() => {
     const groups = {}
@@ -219,10 +235,12 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
     )
   }
 
-  const ownedCards = cards.filter((c) => ownedMap[c.id])
-  const ownedCount = ownedCards.length
-  const ownedPct = cards.length ? Math.round((ownedCount / cards.length) * 100) : 0
-  const pricedOwnedCards = ownedCards.filter((c) => typeof c.market_price === 'number')
+  const ownedInstances = cardInstances.filter((c) => ownedMap[c.key])
+  const ownedCount = ownedInstances.length
+  const ownedPct = cardInstances.length
+    ? Math.round((ownedCount / cardInstances.length) * 100)
+    : 0
+  const pricedOwnedCards = ownedInstances.filter((c) => typeof c.market_price === 'number')
   const collectionValue = pricedOwnedCards.reduce((sum, c) => sum + c.market_price, 0)
 
   return (
@@ -237,7 +255,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
             <div className="progress-fill" style={{ width: `${ownedPct}%` }} />
           </div>
           <p className="progress-label">
-            {ownedCount} / {cards.length} owned ({ownedPct}%)
+            {ownedCount} / {cardInstances.length} owned ({ownedPct}%)
             {!session && ' — log in to track your progress'}
             {session && !seeded && ' — mark a card to start tracking this set'}
           </p>
@@ -291,7 +309,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
       )}
 
       {sections.map((section) => {
-        const sectionOwned = section.cards.filter((c) => ownedMap[c.id]).length
+        const sectionOwned = section.cards.filter((c) => ownedMap[c.key]).length
         return (
           <section key={section.label} className={`rarity-section ${sceneClassFor(section.label)}`}>
             <h2 className="rarity-section-heading">
@@ -303,16 +321,27 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
             <div className="card-grid">
               {section.cards.map((card) => (
                 <div
-                  key={card.id}
-                  className={`card-tile ${ownedMap[card.id] ? 'owned' : ''}`}
+                  key={card.key}
+                  className={`card-tile ${ownedMap[card.key] ? 'owned' : ''} ${
+                    card.variant === 'reverseHolo' ? 'variant-reverse-holo' : ''
+                  }`}
                   onClick={() => setSelectedCard(card)}
                 >
-                  {ownedMap[card.id] && (
-                    <span className={`owned-bubble ${justMarked === card.id ? 'pop' : ''}`}>
+                  {ownedMap[card.key] && (
+                    <span className={`owned-bubble ${justMarked === card.key ? 'pop' : ''}`}>
                       ✓
                     </span>
                   )}
-                  <img src={card.image_url} alt={card.name} loading="lazy" />
+                  {card.variant !== 'normal' && (
+                    <span className="variant-badge">&#10024; {VARIANT_LABELS[card.variant]}</span>
+                  )}
+                  <div
+                    className={`card-image-wrap ${
+                      card.variant === 'reverseHolo' ? 'variant-reverse-holo' : ''
+                    }`}
+                  >
+                    <img src={card.image_url} alt={card.name} loading="lazy" />
+                  </div>
                   <span>
                     {card.number}. {card.name}
                   </span>
@@ -320,10 +349,10 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
                     className="owned-toggle"
                     onClick={(e) => {
                       e.stopPropagation()
-                      toggleOwned(card.id)
+                      toggleOwned(card.id, card.variant)
                     }}
                   >
-                    {ownedMap[card.id] ? '✓ Owned' : 'Mark owned'}
+                    {ownedMap[card.key] ? '✓ Owned' : 'Mark owned'}
                   </button>
                 </div>
               ))}
@@ -334,8 +363,8 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
 
       <CardModal
         card={selectedCard}
-        owned={selectedCard ? !!ownedMap[selectedCard.id] : false}
-        onToggleOwned={toggleOwned}
+        owned={selectedCard ? !!ownedMap[selectedCard.key] : false}
+        onToggleOwned={(cardId) => toggleOwned(cardId, selectedCard?.variant)}
         onClose={() => setSelectedCard(null)}
         onViewArtist={onViewArtist}
       />

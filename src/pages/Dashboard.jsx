@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { fetch2026Sets } from '../lib/pokemonApi'
+import { variantsFor, instanceKey } from '../lib/variants'
 
 export default function Dashboard({ session, onSelectSet, onFindSets }) {
   const [sets, setSets] = useState([])
@@ -61,22 +62,26 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
       // Live API is flaky sometimes; the dashboard still works without logos.
     }
 
-    const { data: cardsData } = await supabase.from('cards').select('id, set_id, market_price')
+    const { data: cardsData } = await supabase
+      .from('cards')
+      .select('id, set_id, rarity, market_price')
     const { data: ownedData } = await supabase
       .from('user_cards')
-      .select('card_id')
+      .select('card_id, variant')
       .eq('user_id', session.user.id)
       .eq('owned', true)
 
-    const ownedSet = new Set((ownedData || []).map((r) => r.card_id))
+    const ownedSet = new Set((ownedData || []).map((r) => instanceKey(r.card_id, r.variant)))
     const totals = {}
     for (const card of cardsData || []) {
       totals[card.set_id] = totals[card.set_id] || { owned: 0, total: 0, value: 0 }
-      totals[card.set_id].total += 1
-      if (ownedSet.has(card.id)) {
-        totals[card.set_id].owned += 1
-        if (typeof card.market_price === 'number') {
-          totals[card.set_id].value += card.market_price
+      for (const variant of variantsFor(card)) {
+        totals[card.set_id].total += 1
+        if (ownedSet.has(instanceKey(card.id, variant))) {
+          totals[card.set_id].owned += 1
+          if (typeof card.market_price === 'number') {
+            totals[card.set_id].value += card.market_price
+          }
         }
       }
     }
