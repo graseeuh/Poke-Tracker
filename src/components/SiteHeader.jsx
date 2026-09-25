@@ -1,10 +1,12 @@
-export default function SiteHeader({ session, onLogin, onLogout, onMyTrackedSets }) {
+export default function SiteHeader({ session, onLogin, onLogout, onMyTrackedSets, onGoHome }) {
   return (
     <header className="site-header">
-      <div className="site-logo-mark">PT</div>
-      <span className="site-wordmark">
-        Poke<span>Tracker</span>
-      </span>
+      <button className="site-brand" onClick={onGoHome} aria-label="Go to search">
+        <span className="site-logo-mark">PT</span>
+        <span className="site-wordmark">
+          Poke<span>Tracker</span>
+        </span>
+      </button>
 
       <nav className="site-header-nav">
         {session ? (

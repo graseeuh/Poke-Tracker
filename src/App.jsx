@@ -40,6 +40,12 @@ function App() {
     setView('login')
   }
 
+  function goHome() {
+    setSelectedSetId(null)
+    setViewingArtist(null)
+    setView('search')
+  }
+
   function renderPage() {
     if (loadingSession) return <p className="status">Loading...</p>
     if (passwordRecovery) return <ResetPassword onDone={() => setPasswordRecovery(false)} />
@@ -91,6 +97,7 @@ function App() {
         onLogin={() => setView('login')}
         onLogout={() => supabase.auth.signOut()}
         onMyTrackedSets={() => setView('dashboard')}
+        onGoHome={goHome}
       />
       {renderPage()}
     </>
