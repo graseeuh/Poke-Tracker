@@ -520,6 +520,28 @@ h3 {
   transform: translateY(-2px);
 }
 
+.set-logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.6rem;
+}
+
+.set-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.set-symbol {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: -3px;
+  margin-right: 0.35rem;
+}
+
 .set-card h3 {
   font-family: 'Geist', sans-serif;
   font-weight: 700;

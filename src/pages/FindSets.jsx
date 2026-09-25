@@ -134,7 +134,15 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
               >
                 {isFavorite ? '★' : '☆'}
               </button>
-              <h3>{s.name}</h3>
+              <div className="set-logo">
+                {s.images?.logo && <img src={s.images.logo} alt={`${s.name} logo`} loading="lazy" />}
+              </div>
+              <h3>
+                {s.images?.symbol && (
+                  <img className="set-symbol" src={s.images.symbol} alt="" loading="lazy" />
+                )}
+                {s.name}
+              </h3>
               <p className="set-series">{s.series}</p>
               <p className="progress-label">{s.total} cards &middot; {s.releaseDate}</p>
             </div>

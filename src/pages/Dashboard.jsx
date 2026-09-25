@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { fetch2026Sets } from '../lib/pokemonApi'
 
 export default function Dashboard({ session, onSelectSet, onFindSets }) {
   const [sets, setSets] = useState([])
+  const [images, setImages] = useState({}) // { [setId]: { logo, symbol } }
   const [progress, setProgress] = useState({}) // { [setId]: { owned, total } }
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -47,6 +49,17 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
     }
 
     setSets(setsData || [])
+
+    try {
+      const apiSets = await fetch2026Sets()
+      const imageMap = {}
+      for (const s of apiSets) {
+        imageMap[s.id] = s.images
+      }
+      setImages(imageMap)
+    } catch {
+      // Live API is flaky sometimes; the dashboard still works without logos.
+    }
 
     const { data: cardsData } = await supabase.from('cards').select('id, set_id, market_price')
     const { data: ownedData } = await supabase
@@ -94,7 +107,17 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
           const pct = p.total ? Math.round((p.owned / p.total) * 100) : 0
           return (
             <button key={set.id} className="set-card" onClick={() => onSelectSet(set.id)}>
-              <h3>{set.name}</h3>
+              <div className="set-logo">
+                {images[set.id]?.logo && (
+                  <img src={images[set.id].logo} alt={`${set.name} logo`} loading="lazy" />
+                )}
+              </div>
+              <h3>
+                {images[set.id]?.symbol && (
+                  <img className="set-symbol" src={images[set.id].symbol} alt="" loading="lazy" />
+                )}
+                {set.name}
+              </h3>
               <p className="set-series">{set.series}</p>
               <div className="progress-bar">
                 <div className="progress-fill" style={{ width: `${pct}%` }} />
