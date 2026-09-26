@@ -104,17 +104,14 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
       {sets.length > 0 && (
         <div className="binder-stats">
           <div className="binder-stat binder-stat-cards">
-            <span className="binder-stat-icon">&#127183;</span>
             <span className="binder-stat-value">{totalOwned}</span>
             <span className="binder-stat-label">cards collected</span>
           </div>
           <div className="binder-stat binder-stat-sets">
-            <span className="binder-stat-icon">&#128218;</span>
             <span className="binder-stat-value">{sets.length}</span>
             <span className="binder-stat-label">sets tracked</span>
           </div>
           <div className="binder-stat binder-stat-pct">
-            <span className="binder-stat-icon">&#128200;</span>
             <span className="binder-stat-value">
               {totalCards ? Math.round((totalOwned / totalCards) * 100) : 0}%
             </span>

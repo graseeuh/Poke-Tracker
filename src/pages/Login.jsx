@@ -83,8 +83,8 @@ export default function Login({ onCancel }) {
     <div className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
         <div className="auth-brand">
-          <div className="auth-brand-mark">PT</div>
-          <h1>Pokemon Master Set Tracker</h1>
+          <div className="auth-brand-mark">PB</div>
+          <h1>PokeBind</h1>
         </div>
 
         {mode !== 'forgot' && (
