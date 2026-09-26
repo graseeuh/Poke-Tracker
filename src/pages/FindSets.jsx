@@ -125,19 +125,6 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
   return (
     <div className="find-sets">
       <header className="hero">
-        <div className="hero-callouts">
-          <div className="hero-callout hero-callout-1">
-            <span className="hero-callout-tag">NEW</span>
-            <strong>Rarity showcases</strong>
-            <span>Chase cards get their own themed section, every set.</span>
-          </div>
-          <div className="hero-callout hero-callout-2">
-            <span className="hero-callout-tag">TRACKED</span>
-            <strong>Card-by-card progress</strong>
-            <span>Mark what you own and watch your binder fill in.</span>
-          </div>
-        </div>
-
         <div className="hero-content">
           <h1 className="hero-title">
             TRACK EVERY
@@ -145,9 +132,7 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
             <span className="hero-gradient-text">MASTER SET</span>
           </h1>
           <p className="hero-subtitle">
-            {session
-              ? 'Favorite a set to start tracking it.'
-              : 'Browse freely, log in to favorite a set and track your progress.'}
+            Search for a 2026 set to open it, log in to favorite one and track your progress.
           </p>
 
           <div className="hero-search-row">
@@ -157,6 +142,7 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
               placeholder="Search 2026 sets by name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              autoFocus
             />
             {session && (
               <button className="tracked-sets-cta" onClick={onGoToTrackedSets}>
@@ -184,19 +170,26 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
         </div>
       </header>
 
-      {usingFallback && (
+      {!search.trim() && (
+        <p className="status search-prompt">
+          Search for a 2026 set above to open it, favorite it, and track your progress.
+        </p>
+      )}
+
+      {search.trim() && usingFallback && (
         <p className="status fallback-notice">
           The live card catalog is temporarily unavailable, so this is showing sets already saved
           in our database instead. Set logos won't show up until the live catalog is back.
         </p>
       )}
-      {error && <p className="error">{error}</p>}
-      {loading && <p className="status">Loading 2026 sets...</p>}
+      {search.trim() && error && <p className="error">{error}</p>}
+      {search.trim() && loading && <p className="status">Loading 2026 sets...</p>}
 
-      {!loading && !error && filteredSets.length === 0 && (
+      {search.trim() && !loading && !error && filteredSets.length === 0 && (
         <p className="status">No 2026 sets match your search.</p>
       )}
 
+      {search.trim() && !loading && !error && filteredSets.length > 0 && (
       <div className="set-grid">
         {filteredSets.map((s) => {
           const isFavorite = favoriteIds.has(s.id)
@@ -239,6 +232,7 @@ export default function FindSets({ session, onGoToTrackedSets, onRequireLogin, o
           )
         })}
       </div>
+      )}
     </div>
   )
 }
