@@ -89,22 +89,32 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
 
   return (
     <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>Your Binder</h1>
-        <button onClick={onFindSets}>Browse all 2026 sets</button>
+      <header className="dashboard-hero">
+        <div>
+          <h1 className="dashboard-title">
+            Your <span className="hero-gradient-text">Binder</span>
+          </h1>
+          <p className="dashboard-subtitle">Every set you're chasing, all in one place.</p>
+        </div>
+        <button className="dashboard-browse-cta" onClick={onFindSets}>
+          Browse all 2026 sets &rarr;
+        </button>
       </header>
 
       {sets.length > 0 && (
         <div className="binder-stats">
-          <div className="binder-stat">
+          <div className="binder-stat binder-stat-cards">
+            <span className="binder-stat-icon">&#127183;</span>
             <span className="binder-stat-value">{totalOwned}</span>
             <span className="binder-stat-label">cards collected</span>
           </div>
-          <div className="binder-stat">
+          <div className="binder-stat binder-stat-sets">
+            <span className="binder-stat-icon">&#128218;</span>
             <span className="binder-stat-value">{sets.length}</span>
             <span className="binder-stat-label">sets tracked</span>
           </div>
-          <div className="binder-stat">
+          <div className="binder-stat binder-stat-pct">
+            <span className="binder-stat-icon">&#128200;</span>
             <span className="binder-stat-value">
               {totalCards ? Math.round((totalOwned / totalCards) * 100) : 0}%
             </span>
@@ -120,12 +130,17 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
         </p>
       )}
 
-      <div className="set-grid">
-        {sets.map((set) => {
+      <div className="binder-grid">
+        {sets.map((set, i) => {
           const p = progress[set.id] || { owned: 0, total: set.total }
           const pct = p.total ? Math.round((p.owned / p.total) * 100) : 0
           return (
-            <button key={set.id} className="set-card" onClick={() => onSelectSet(set.id)}>
+            <button
+              key={set.id}
+              className={`binder-set-card binder-set-card-${i % 4}`}
+              onClick={() => onSelectSet(set.id)}
+            >
+              <span className="binder-set-pct">{pct}%</span>
               <div className="set-logo">
                 {images[set.id]?.logo && (
                   <img src={images[set.id].logo} alt={`${set.name} logo`} loading="lazy" />
@@ -138,11 +153,11 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
                 {set.name}
               </h3>
               <p className="set-series">{set.series}</p>
-              <div className="progress-bar">
+              <div className="progress-bar binder-progress-bar">
                 <div className="progress-fill" style={{ width: `${pct}%` }} />
               </div>
               <p className="progress-label">
-                {p.owned} / {p.total} ({pct}%)
+                {p.owned} / {p.total} owned
               </p>
             </button>
           )

@@ -1,4 +1,4 @@
-# Pokemon Master Set Tracker
+# PokeBind
 
 A web app for tracking your progress toward completing a "master set" (every
 card) of a Pokemon TCG set released in 2026. Register an account, pick a set,

@@ -2,9 +2,9 @@ export default function SiteHeader({ session, onLogin, onLogout, onMyTrackedSets
   return (
     <header className="site-header">
       <button className="site-brand" onClick={onGoHome} aria-label="Go to search">
-        <span className="site-logo-mark">PT</span>
+        <span className="site-logo-mark">PB</span>
         <span className="site-wordmark">
-          Poke<span>Tracker</span>
+          Poke<span>Bind</span>
         </span>
       </button>
 
