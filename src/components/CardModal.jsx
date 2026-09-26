@@ -47,17 +47,6 @@ export default function CardModal({ card, owned, onToggleOwned, onClose, onViewA
           </button>
 
           <div className="price-box">
-            {typeof card.market_price === 'number' ? (
-              <p className="market-price">
-                <span className="market-price-amount">${card.market_price.toFixed(2)}</span>
-                <span className="market-price-label">TCGplayer market price</span>
-              </p>
-            ) : (
-              <p className="price-unavailable">
-                Not priced yet &mdash; TCGplayer hasn't published sales data for this card.
-              </p>
-            )}
-
             {card.tcgplayer_url ? (
               <a
                 className="price-link"
@@ -65,17 +54,16 @@ export default function CardModal({ card, owned, onToggleOwned, onClose, onViewA
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                View on TCGplayer &#8599;
+                View current price on TCGplayer &#8599;
               </a>
             ) : (
-              <p className="price-unavailable">No TCGplayer purchase link for this card yet.</p>
+              <p className="price-unavailable">No TCGplayer listing for this card yet.</p>
             )}
             <p className="price-disclaimer">
-              Pricing comes from TCGplayer, a third party, and isn't a valuation. TCGplayer
-              doesn't allow its pages to be embedded, so this opens their site in a new tab. If
-              your browser blocks it, it's redirecting through TCGplayer's own affiliate link
-              chain, which some ad/tracker blockers flag &mdash; try allowing this site or opening
-              the link in a new tab manually.
+              We don't display a price ourselves, this opens TCGplayer's own listing in a new
+              tab so you can see their current, live price. If your browser blocks it, it's
+              redirecting through TCGplayer's own affiliate link chain, which some ad/tracker
+              blockers flag, try allowing this site or opening the link in a new tab manually.
             </p>
           </div>
         </div>

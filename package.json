@@ -8,8 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "seed": "node scripts/seed-cards.mjs",
-    "refresh-prices": "node scripts/refresh-prices.mjs"
+    "seed": "node scripts/seed-cards.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

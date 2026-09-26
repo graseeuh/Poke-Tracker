@@ -228,8 +228,6 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
   const ownedCards = cards.filter((c) => ownedMap[c.id])
   const ownedCount = ownedCards.length
   const ownedPct = cards.length ? Math.round((ownedCount / cards.length) * 100) : 0
-  const pricedOwnedCards = ownedCards.filter((c) => typeof c.market_price === 'number')
-  const collectionValue = pricedOwnedCards.reduce((sum, c) => sum + c.market_price, 0)
 
   return (
     <div className="set-detail">
@@ -247,21 +245,6 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
             {!session && ', log in to track your progress'}
             {session && !seeded && ', mark a card to start tracking this set'}
           </p>
-          {ownedCount > 0 && pricedOwnedCards.length > 0 && (
-            <p className="collection-value">
-              Collection value: <strong>${collectionValue.toFixed(2)}</strong>
-              {pricedOwnedCards.length < ownedCount &&
-                ` (${ownedCount - pricedOwnedCards.length} owned card${
-                  ownedCount - pricedOwnedCards.length === 1 ? '' : 's'
-                } not yet priced)`}
-            </p>
-          )}
-          {ownedCount > 0 && pricedOwnedCards.length === 0 && (
-            <p className="collection-value price-unavailable">
-              TCGplayer hasn't published market prices for this set yet, collection value will
-              show up here once they do.
-            </p>
-          )}
         </div>
       </header>
 

@@ -61,7 +61,7 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
       // Live API is flaky sometimes; the dashboard still works without logos.
     }
 
-    const { data: cardsData } = await supabase.from('cards').select('id, set_id, market_price')
+    const { data: cardsData } = await supabase.from('cards').select('id, set_id')
     const { data: ownedData } = await supabase
       .from('user_cards')
       .select('card_id')
@@ -71,14 +71,10 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
     const ownedSet = new Set((ownedData || []).map((r) => r.card_id))
     const totals = {}
     for (const card of cardsData || []) {
-      totals[card.set_id] = totals[card.set_id] || { owned: 0, total: 0, value: 0, pricedOwned: 0 }
+      totals[card.set_id] = totals[card.set_id] || { owned: 0, total: 0 }
       totals[card.set_id].total += 1
       if (ownedSet.has(card.id)) {
         totals[card.set_id].owned += 1
-        if (typeof card.market_price === 'number') {
-          totals[card.set_id].value += card.market_price
-          totals[card.set_id].pricedOwned += 1
-        }
       }
     }
     setProgress(totals)
@@ -90,8 +86,6 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
 
   const totalOwned = Object.values(progress).reduce((sum, p) => sum + p.owned, 0)
   const totalCards = Object.values(progress).reduce((sum, p) => sum + p.total, 0)
-  const totalValue = Object.values(progress).reduce((sum, p) => sum + p.value, 0)
-  const totalPricedOwned = Object.values(progress).reduce((sum, p) => sum + p.pricedOwned, 0)
 
   return (
     <div className="dashboard">
@@ -112,12 +106,6 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
           </div>
           <div className="binder-stat">
             <span className="binder-stat-value">
-              {totalPricedOwned > 0 ? `$${totalValue.toFixed(2)}` : 'N/A'}
-            </span>
-            <span className="binder-stat-label">collection value</span>
-          </div>
-          <div className="binder-stat">
-            <span className="binder-stat-value">
               {totalCards ? Math.round((totalOwned / totalCards) * 100) : 0}%
             </span>
             <span className="binder-stat-label">overall complete</span>
@@ -134,7 +122,7 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
 
       <div className="set-grid">
         {sets.map((set) => {
-          const p = progress[set.id] || { owned: 0, total: set.total, value: 0, pricedOwned: 0 }
+          const p = progress[set.id] || { owned: 0, total: set.total }
           const pct = p.total ? Math.round((p.owned / p.total) * 100) : 0
           return (
             <button key={set.id} className="set-card" onClick={() => onSelectSet(set.id)}>
@@ -156,9 +144,6 @@ export default function Dashboard({ session, onSelectSet, onFindSets }) {
               <p className="progress-label">
                 {p.owned} / {p.total} ({pct}%)
               </p>
-              {p.owned > 0 && p.pricedOwned > 0 && (
-                <p className="progress-label set-value">${p.value.toFixed(2)} collected</p>
-              )}
             </button>
           )
         })}
