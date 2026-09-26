@@ -94,7 +94,7 @@ function App() {
     <>
       <SiteHeader
         session={session}
-        onLogin={() => setView('login')}
+        onLogin={requireLogin}
         onLogout={() => supabase.auth.signOut()}
         onMyTrackedSets={() => setView('dashboard')}
         onGoHome={goHome}
