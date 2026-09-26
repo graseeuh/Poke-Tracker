@@ -7,6 +7,7 @@ import ResetPassword from './pages/ResetPassword'
 import FindSets from './pages/FindSets'
 import ArtistWorks from './pages/ArtistWorks'
 import SiteHeader from './components/SiteHeader'
+import PixelBallField from './components/PixelBallField'
 import './App.css'
 
 // Lightweight client-side routing via the History API — no router library
@@ -164,6 +165,7 @@ function App() {
 
   return (
     <>
+      <PixelBallField />
       <SiteHeader
         session={session}
         onLogin={requireLogin}
