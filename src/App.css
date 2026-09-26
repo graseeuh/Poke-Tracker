@@ -445,14 +445,14 @@ h3 {
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 1.75rem 1.25rem;
+  border-radius: 16px;
+  padding: 1rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0.3rem;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+  gap: 0.15rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s;
 }
 
@@ -484,7 +484,7 @@ h3 {
 .binder-stat-icon {
   position: relative;
   z-index: 1;
-  font-size: 1.8rem;
+  font-size: 1.1rem;
   line-height: 1;
 }
 
@@ -492,7 +492,7 @@ h3 {
   position: relative;
   z-index: 1;
   font-family: 'Archivo Black', sans-serif;
-  font-size: 2.4rem;
+  font-size: 1.7rem;
   background: linear-gradient(120deg, var(--primary), var(--accent2));
   -webkit-background-clip: text;
   background-clip: text;
