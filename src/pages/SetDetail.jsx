@@ -54,6 +54,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('All')
   const [rarityFilter, setRarityFilter] = useState('All')
+  const [ownedFilter, setOwnedFilter] = useState('All') // 'All' | 'Owned' | 'Not owned'
   const [sortBy, setSortBy] = useState('number') // 'number' | 'name'
   const [selectedCard, setSelectedCard] = useState(null)
 
@@ -182,6 +183,11 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
     if (rarityFilter !== 'All') {
       result = result.filter((c) => c.rarity === rarityFilter)
     }
+    if (ownedFilter === 'Owned') {
+      result = result.filter((c) => ownedMap[c.id])
+    } else if (ownedFilter === 'Not owned') {
+      result = result.filter((c) => !ownedMap[c.id])
+    }
 
     result = [...result].sort((a, b) => {
       if (sortBy === 'name') return a.name.localeCompare(b.name)
@@ -189,7 +195,7 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
     })
 
     return result
-  }, [cards, search, typeFilter, rarityFilter, sortBy])
+  }, [cards, search, typeFilter, rarityFilter, ownedFilter, ownedMap, sortBy])
 
   const sections = useMemo(() => {
     const groups = {}
@@ -241,13 +247,19 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
             {!session && ', log in to track your progress'}
             {session && !seeded && ', mark a card to start tracking this set'}
           </p>
-          {ownedCount > 0 && (
+          {ownedCount > 0 && pricedOwnedCards.length > 0 && (
             <p className="collection-value">
               Collection value: <strong>${collectionValue.toFixed(2)}</strong>
               {pricedOwnedCards.length < ownedCount &&
                 ` (${ownedCount - pricedOwnedCards.length} owned card${
                   ownedCount - pricedOwnedCards.length === 1 ? '' : 's'
                 } not yet priced)`}
+            </p>
+          )}
+          {ownedCount > 0 && pricedOwnedCards.length === 0 && (
+            <p className="collection-value price-unavailable">
+              TCGplayer hasn't published market prices for this set yet, collection value will
+              show up here once they do.
             </p>
           )}
         </div>
@@ -284,6 +296,14 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
           <option value="number">Sort: Number</option>
           <option value="name">Sort: A&ndash;Z</option>
         </select>
+
+        {session && (
+          <select value={ownedFilter} onChange={(e) => setOwnedFilter(e.target.value)}>
+            <option value="All">All cards</option>
+            <option value="Owned">Owned only</option>
+            <option value="Not owned">Not owned only</option>
+          </select>
+        )}
       </div>
 
       {filteredCards.length === 0 && (
