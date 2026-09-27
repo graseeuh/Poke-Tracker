@@ -189,13 +189,16 @@ h3 {
   height: 28px;
   border-radius: var(--radius-sm);
   background: var(--primary);
-  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 0.75rem;
   flex-shrink: 0;
+}
+
+.site-logo-icon {
+  width: 18px;
+  height: 18px;
+  image-rendering: pixelated;
 }
 
 .site-wordmark {
@@ -271,13 +274,16 @@ h3 {
   height: 44px;
   border-radius: var(--radius-sm);
   background: var(--primary);
-  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 1rem;
   box-shadow: 0 6px 16px rgba(124, 92, 255, 0.4);
+}
+
+.auth-brand-icon {
+  width: 28px;
+  height: 28px;
+  image-rendering: pixelated;
 }
 
 .auth-form h1 {

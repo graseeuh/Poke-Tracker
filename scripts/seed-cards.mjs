@@ -45,6 +45,8 @@ async function main() {
     series: set.series,
     total: set.total,
     release_date: set.releaseDate.replace(/\//g, '-'),
+    logo_url: set.images?.logo ?? null,
+    symbol_url: set.images?.symbol ?? null,
   })
   if (setError) throw setError
   console.log(`Saved set: ${set.name} (${set.total} cards)`)

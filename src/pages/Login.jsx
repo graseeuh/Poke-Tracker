@@ -83,7 +83,9 @@ export default function Login({ onCancel }) {
     <div className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
         <div className="auth-brand">
-          <div className="auth-brand-mark">PB</div>
+          <div className="auth-brand-mark">
+            <img className="auth-brand-icon" src="/favicon.svg" alt="" />
+          </div>
           <h1>PokeBind</h1>
         </div>
 

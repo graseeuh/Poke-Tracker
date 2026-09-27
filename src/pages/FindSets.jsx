@@ -19,6 +19,7 @@ async function fetchSetsFallback() {
     series: s.series,
     total: s.total,
     releaseDate: s.release_date ? s.release_date.replaceAll('-', '/') : '',
+    images: { logo: s.logo_url ?? null, symbol: s.symbol_url ?? null },
   }))
 }
 

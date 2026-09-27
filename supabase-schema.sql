@@ -5,7 +5,13 @@ create table if not exists sets (
   name text not null,
   series text,
   total int not null,
-  release_date date
+  release_date date,
+  -- Cached from the live API at seed time so the set grid still has logos
+  -- when the live API is down and we fall back to this table (the image
+  -- CDN is separate infrastructure from the flaky JSON API and far more
+  -- reliable).
+  logo_url text,
+  symbol_url text
 );
 
 create table if not exists cards (

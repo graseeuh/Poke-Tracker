@@ -19,6 +19,8 @@ export async function ensureSetSeeded(apiSet) {
     series: apiSet.series,
     total: apiSet.total,
     release_date: apiSet.releaseDate.replace(/\//g, '-'),
+    logo_url: apiSet.images?.logo ?? null,
+    symbol_url: apiSet.images?.symbol ?? null,
   })
   if (setError) throw setError
 
