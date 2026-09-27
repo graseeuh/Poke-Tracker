@@ -132,15 +132,11 @@ export default function SetDetail({ session, setId, onBack, onViewArtist, onRequ
 
     try {
       if (!seeded) {
+        // Caches this set's data in our DB so it's findable/trackable even
+        // when the live API is down — separate from favoriting, which is
+        // now a manual bookmark and shouldn't be implied by ownership.
         await ensureSetSeeded(apiSetMeta)
         setSeeded(true)
-      }
-
-      if (nextOwned) {
-        const { error: favError } = await supabase
-          .from('favorite_sets')
-          .upsert({ user_id: session.user.id, set_id: setId })
-        if (favError) throw favError
       }
 
       const { error } = await supabase.from('user_cards').upsert({

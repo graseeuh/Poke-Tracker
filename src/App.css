@@ -849,6 +849,38 @@ h3 {
   margin: 0;
 }
 
+.binder-view-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--surface2);
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+}
+
+.binder-view-toggle button {
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.binder-view-toggle button.active {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.favorite-star-left {
+  left: 1rem;
+  right: auto;
+}
+
 /* Binder ("My Binder" dashboard) set cards — deliberately bigger and
    bolder than the plain FindSets search-result cards, since this is the
    page a returning user lands on and interacts with most. */
