@@ -6,7 +6,7 @@ start tracking it, and check off cards as you collect them, watching a
 progress bar fill in across your whole binder.
 
 **Live app:** https://poke-tracker-nine.vercel.app
-**Demo video:** _add your unlisted YouTube link here_
+**Demo video:** https://youtu.be/_yO5lXa0-m0
 **Repo:** https://github.com/graseeuh/Poke-Tracker
 
 ## What it does
